@@ -55,6 +55,7 @@ public class TestClassifier {
         int k = 0;
         //-------------------------------------
         //notes.keySet()
+        
         for (String key : noteBySection.keySet()) {
             System.out.println(key);
             List<String> notes = noteBySection.get(key);
@@ -131,7 +132,8 @@ public class TestClassifier {
         }
          learningAlgorithm.close();
     }
-static int i = 0;
+    
+    static int i = 0;
     private static Vector encodeFeatureVector(String text) {
         encoder.addText(text.toLowerCase());
         //System.out.println(encoder.asString(text));
