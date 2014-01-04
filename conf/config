@@ -1,0 +1,15 @@
+#this file is HotPointer config file
+#in this file,u can special thrfit service ip and port
+#more config item will coming soon
+
+#where can we get fetched info
+PULL_IP = 127.0.0.1
+
+#crawler service port
+PULL_PORT = 9090
+
+#public to weibo or weixin ,and this is public service IP
+PUSH_IP = yasir.cn
+
+#public to weibo or weixin ,and this is public service port
+PUSH_PORT = 9090

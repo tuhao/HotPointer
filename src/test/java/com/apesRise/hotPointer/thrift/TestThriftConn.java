@@ -2,12 +2,11 @@ package com.apesRise.hotPointer.thrift;
 
 import java.util.List;
 
-import com.alibaba.fastjson.JSON;
-import com.apesRise.hotPointer.core.toper.weibo.WeiboMsg;
-import com.apesRise.hotPointer.thrift.gen.Data;
-import com.apesRise.hotPointer.thrift.gen.Operate;
-import com.apesRise.hotPointer.thrift.gen.Request;
-import com.apesRise.hotPointer.thrift.gen.Type;
+import com.apesRise.hotPointer.thrift.crawler_gen.Data;
+import com.apesRise.hotPointer.thrift.crawler_gen.Operate;
+import com.apesRise.hotPointer.thrift.crawler_gen.Request;
+import com.apesRise.hotPointer.thrift.crawler_gen.Type;
+import com.apesRise.hotPointer.util.LogHelper;
 
 public class TestThriftConn {
 	
@@ -23,6 +22,7 @@ public class TestThriftConn {
 		
 		if(list==null) return;
 		for(Data cur:list){
+			LogHelper.info(cur.data);
 			String[] lists = cur.getData().split("\\}\\{");
 			for(String curStr :lists){
 				if(!curStr.endsWith("}")){

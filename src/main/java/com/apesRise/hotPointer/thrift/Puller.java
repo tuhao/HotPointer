@@ -11,9 +11,9 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
 import com.apesRise.hotPointer.main.Config;
-import com.apesRise.hotPointer.thrift.gen.Data;
-import com.apesRise.hotPointer.thrift.gen.DataService.Client;
-import com.apesRise.hotPointer.thrift.gen.Request;
+import com.apesRise.hotPointer.thrift.crawler_gen.Data;
+import com.apesRise.hotPointer.thrift.crawler_gen.DataService.Client;
+import com.apesRise.hotPointer.thrift.crawler_gen.Request;
 
 public class Puller {
 
@@ -21,7 +21,7 @@ public class Puller {
 	 * pull info form crawler server
 	 * */
 	public List<Data> pull(Request request) {
-		TTransport transport = new TFramedTransport(new TSocket(Config.IP, Config.PORT));
+		TTransport transport = new TFramedTransport(new TSocket(Config.PULL_IP, Config.PULL_PORT));
 		try {
 			transport.open();
 		} catch (TTransportException e) {

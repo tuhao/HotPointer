@@ -5,15 +5,19 @@ import java.util.List;
 import com.alibaba.fastjson.JSON;
 import com.apesRise.hotPointer.core.toper.MaxTopo;
 import com.apesRise.hotPointer.core.toper.weibo.WeiboMsg;
-import com.apesRise.hotPointer.thrift.gen.Data;
-import com.apesRise.hotPointer.thrift.gen.Operate;
-import com.apesRise.hotPointer.thrift.gen.Request;
-import com.apesRise.hotPointer.thrift.gen.Type;
+import com.apesRise.hotPointer.main.Config;
+import com.apesRise.hotPointer.thrift.crawler_gen.Data;
+import com.apesRise.hotPointer.thrift.crawler_gen.Operate;
+import com.apesRise.hotPointer.thrift.crawler_gen.Request;
+import com.apesRise.hotPointer.thrift.crawler_gen.Type;
 
 public class TestRankByThriftConn {
 	
 	public static void main(String []a){
 		
+		Config.init();
+		
+		Pusher pusher = new Pusher();
 		Request request = new Request();
 		request.setOperate(Operate.ROLLBACK);
 		request.setType(Type.Weibo);
@@ -41,6 +45,8 @@ public class TestRankByThriftConn {
 			}
 			
 		}
+		
+		pusher.push(toper.getResult());
 		
 		for (WeiboMsg cur : toper.getResult()) {
 			System.out.println("score:"+cur.getTime());
