@@ -103,6 +103,13 @@ public class Main {
 				}
 				System.out.println("\n\n");
 			}
+			
+			System.out.println("push ok and write cache file");
+			long curTime = System.currentTimeMillis();
+			for (WeiboMsg cur : toper.getResult()) {
+				WFile.wf("cache/pushok_"+curTime, JSON.toJSONString(cur)+"\n\n\n\n\n",true);
+			}
+			
 		}else{
 			System.out.println("push fail and write cache file");
 			long curTime = System.currentTimeMillis();

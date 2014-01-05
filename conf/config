@@ -3,7 +3,7 @@
 #more config item will coming soon
 
 #where can we get fetched info
-PULL_IP = 192.168.2.6
+PULL_IP = 127.0.0.1
 
 #crawler service port
 PULL_PORT = 9090
