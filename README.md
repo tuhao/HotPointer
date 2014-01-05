@@ -19,3 +19,9 @@ run TestRankByThriftConn.java
 
 ###config
 modify conf/config file
+
+###How To Build
+mvn package  
+than you can find HotPointer-0.0.1.jar in target  
+copy jar,conf/ file to same directory and run this program by   
+nohup java -jar HotPointer-0.0.1.jar &

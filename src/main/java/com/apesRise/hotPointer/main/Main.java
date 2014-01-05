@@ -65,6 +65,21 @@ public class Main {
 			isfinish = pusher.push(toper.getResult());
 
 		}
+		
+		if(isfinish){
+			System.out.println("--------------------------------time:"+new Date()+"-----------------------------------");
+			
+			for (WeiboMsg cur : toper.getResult()) {
+				System.out.println("score:"+cur.getTime());
+				System.out.println("user:"+cur.getUser().getName()+"  "+cur.getUser().getFollowers_count()+"  "+cur.getUser().getFriends_count());
+				System.out.println("weibo:"+cur.getText());
+				if(cur.getRetweeted_status()!=null){
+					System.out.println("reuser:"+cur.getRetweeted_status().getUser().getName()+"  "+cur.getRetweeted_status().getUser().getFollowers_count()+"  "+cur.getRetweeted_status().getUser().getFriends_count());
+					System.out.println("reweibo:"+cur.getRetweeted_status().getText());
+				}
+				System.out.println("\n\n");
+			}
+		}
 
 	}
 }
