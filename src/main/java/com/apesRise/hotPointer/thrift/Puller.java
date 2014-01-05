@@ -21,11 +21,11 @@ public class Puller {
 	 * pull info form crawler server
 	 * */
 	public List<Data> pull(Request request) {
-		TTransport transport = new TFramedTransport(new TSocket(Config.PULL_IP, Config.PULL_PORT));
+		TTransport transport = new TFramedTransport(new TSocket(Config.PULL_IP, Config.PULL_PORT,10000));
 		try {
 			transport.open();
 		} catch (TTransportException e) {
-			// log
+			e.printStackTrace();
 			return null;
 		}
 		try {

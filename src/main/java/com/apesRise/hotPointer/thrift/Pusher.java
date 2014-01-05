@@ -40,10 +40,11 @@ public class Pusher {
 	 * */
 	public boolean push(List<WeiboMsg> request) {
 		
-		TTransport transport = new TFramedTransport(new TSocket(Config.PUSH_IP, Config.PUSH_PORT));
+		TTransport transport = new TFramedTransport(new TSocket(Config.PUSH_IP, Config.PUSH_PORT,10000));
 		try {
 			transport.open();
 		} catch (TTransportException e) {
+			e.printStackTrace();
 			return false;
 		}
 		try {

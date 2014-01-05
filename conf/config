@@ -3,7 +3,7 @@
 #more config item will coming soon
 
 #where can we get fetched info
-PULL_IP = 127.0.0.1
+PULL_IP = 192.168.2.6
 
 #crawler service port
 PULL_PORT = 9090
@@ -13,3 +13,8 @@ PUSH_IP = yasir.cn
 
 #public to weibo or weixin ,and this is public service port
 PUSH_PORT = 9090
+
+#pull info method ,can special ROLLBACK or GET
+#ROLLBACK is mean will parse last day and today info
+#GET also try get last day and today info , but just return not parsed info yet 
+METHOD = ROLLBACK

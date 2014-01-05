@@ -25,7 +25,7 @@ public class Main {
 		BloomFilter parsedfilter = new BloomFilter("cache/parsed.data");
 
 		Request request = new Request();
-		request.setOperate(Operate.GET);
+		request.setOperate(Config.METHOD);
 		request.setType(Type.Weibo);
 		request.setScope(2);
 		Calendar calendar = Calendar.getInstance();
@@ -34,7 +34,9 @@ public class Main {
 		request.setStart(((date.getYear() % 100) * 10000)
 				+ ((date.getMonth() + 1) * 100) + date.getDate());
 		Puller puller = new Puller();
+		System.out.println("start pull info");
 		List<Data> list = puller.pull(request);
+		System.out.println("pull info finish and list size is "+(list==null?0:list.size()));
 		Pusher pusher = new Pusher();
 
 		if (list == null)
@@ -42,6 +44,7 @@ public class Main {
 		MaxTopo<WeiboMsg> toper = new MaxTopo<WeiboMsg>(100);
 		for (Data cur : list) {
 			LogHelper.info(cur.data);
+			System.out.println("parse info ... ");
 			String[] lists = cur.getData().split("\\}\\{");
 			for (String curStr : lists) {
 				if (!curStr.endsWith("}")) {
@@ -65,20 +68,27 @@ public class Main {
 
 		}
 
+		System.out.println("parse finish and start push ... ");
+		
 		boolean isfinish = pusher.push(toper.getResult());
+		System.out.println("push finish and  push sucess== "+isfinish);
 		int tryTime = 0;
 		while (!isfinish && tryTime < 5) {
+			System.out.println("satart retry... and try time is "+tryTime);
 			try {
 				Thread.sleep(1000 * 1);
 			} catch (InterruptedException e) {
 			}
 
 			tryTime++;
+			System.out.println("parse finish and start push ... ");
 			isfinish = pusher.push(toper.getResult());
+			System.out.println("push finish and  push sucess== "+isfinish);
 
 		}
 		
 		if(isfinish){
+			System.out.println("push sucess");
 			System.out.println("--------------------------------time:"+new Date()+"-----------------------------------");
 			
 			for (WeiboMsg cur : toper.getResult()) {
@@ -93,6 +103,13 @@ public class Main {
 				}
 				System.out.println("\n\n");
 			}
+		}else{
+			System.out.println("push fail and write cache file");
+			long curTime = System.currentTimeMillis();
+			for (WeiboMsg cur : toper.getResult()) {
+				WFile.wf("cache/pusherr_"+curTime, JSON.toJSONString(cur)+"\n\n\n\n\n",true);
+			}
+			
 		}
 
 	}
