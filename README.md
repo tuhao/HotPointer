@@ -11,11 +11,11 @@ run Main.java at every day 22:00. and it will collect crawler info & rank than p
 
 ###Test
 
-git clone https://github.com/ApesRise/WeiboCrawler.git
-go build thriftServer.go
-./thriftServer
-
-run TestRankByThriftConn.java
+git clone https://github.com/ApesRise/WeiboCrawler.git  
+go build thriftServer.go  
+./thriftServer  
+  
+run TestRankByThriftConn.java  
 
 ###config
 modify conf/config file
