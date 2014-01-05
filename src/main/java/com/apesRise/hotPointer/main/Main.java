@@ -13,12 +13,16 @@ import com.apesRise.hotPointer.thrift.crawler_gen.Data;
 import com.apesRise.hotPointer.thrift.crawler_gen.Operate;
 import com.apesRise.hotPointer.thrift.crawler_gen.Request;
 import com.apesRise.hotPointer.thrift.crawler_gen.Type;
+import com.apesRise.hotPointer.util.BloomFilter;
 import com.apesRise.hotPointer.util.LogHelper;
+import com.apesRise.hotPointer.util.WFile;
 
 public class Main {
 	public static void main(String[] a) {
 
 		Config.init();
+		BloomFilter pushedfilter = new BloomFilter("cache/pushed.data");
+		BloomFilter parsedfilter = new BloomFilter("cache/parsed.data");
 
 		Request request = new Request();
 		request.setOperate(Operate.GET);
@@ -35,7 +39,7 @@ public class Main {
 
 		if (list == null)
 			return;
-		MaxTopo<WeiboMsg> toper = new MaxTopo<WeiboMsg>(3);
+		MaxTopo<WeiboMsg> toper = new MaxTopo<WeiboMsg>(100);
 		for (Data cur : list) {
 			LogHelper.info(cur.data);
 			String[] lists = cur.getData().split("\\}\\{");
@@ -47,8 +51,16 @@ public class Main {
 					curStr = "{" + curStr;
 				}
 				WeiboMsg msg = JSON.parseObject(curStr, WeiboMsg.class);
-				toper.push(msg);
-
+				
+				
+				if(!parsedfilter.contains(msg.getID())){
+					parsedfilter.add(msg.getID());
+					WFile.wf("cache/parsed.data", msg.getID()+"\n", true);
+					if(!pushedfilter.contains(msg.getID())){
+						toper.push(msg);
+					}
+				}
+				
 			}
 
 		}
@@ -70,6 +82,8 @@ public class Main {
 			System.out.println("--------------------------------time:"+new Date()+"-----------------------------------");
 			
 			for (WeiboMsg cur : toper.getResult()) {
+				pushedfilter.add(cur.getID());
+				WFile.wf("cache/pushed.data", cur.getID()+"\n", true);
 				System.out.println("score:"+cur.getTime());
 				System.out.println("user:"+cur.getUser().getName()+"  "+cur.getUser().getFollowers_count()+"  "+cur.getUser().getFriends_count());
 				System.out.println("weibo:"+cur.getText());

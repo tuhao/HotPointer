@@ -10,11 +10,14 @@ import com.apesRise.hotPointer.thrift.crawler_gen.Data;
 import com.apesRise.hotPointer.thrift.crawler_gen.Operate;
 import com.apesRise.hotPointer.thrift.crawler_gen.Request;
 import com.apesRise.hotPointer.thrift.crawler_gen.Type;
+import com.apesRise.hotPointer.util.BloomFilter;
+import com.apesRise.hotPointer.util.WFile;
 
 public class TestRankByThriftConn {
 	
 	public static void main(String []a){
 		
+		BloomFilter pushedfilter = new BloomFilter("cache/pushed.data");
 		Config.init();
 		
 		Pusher pusher = new Pusher();
@@ -46,9 +49,11 @@ public class TestRankByThriftConn {
 			
 		}
 		
-		pusher.push(toper.getResult());
+//		pusher.push(toper.getResult());
 		
 		for (WeiboMsg cur : toper.getResult()) {
+			pushedfilter.add(cur.getID());
+			WFile.wf("cache/pushed.data", cur.getID()+"\n", true);
 			System.out.println("score:"+cur.getTime());
 			System.out.println("user:"+cur.getUser().getName()+"  "+cur.getUser().getFollowers_count()+"  "+cur.getUser().getFriends_count());
 			System.out.println("weibo:"+cur.getText());
