@@ -9,6 +9,15 @@ public class WeiboRetweeted {
 	private int reposts_count;
 	private int comments_count;
 	private int attitudes_count;
+	private String bmiddle_pic;
+
+	public String getBmiddle_pic() {
+		return bmiddle_pic;
+	}
+
+	public void setBmiddle_pic(String bmiddle_pic) {
+		this.bmiddle_pic = bmiddle_pic;
+	}
 
 	public String getIdstr() {
 		return idstr;

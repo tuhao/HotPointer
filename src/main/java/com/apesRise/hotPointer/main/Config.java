@@ -11,6 +11,7 @@ public class Config {
 	public static String PUSH_IP = "127.0.0.1";
 	public static int PUSH_PORT = 9090;
 	public static Operate METHOD = Operate.GET;
+	public static String BASEDIR = "/usr/local/hotfood/HotPointer/";
 	
 	public static void init(){
 		Properties prop = new Properties();
@@ -24,6 +25,7 @@ public class Config {
 		PULL_PORT = Integer.parseInt(prop.getProperty("PULL_PORT","9090"));
 		PUSH_IP = prop.getProperty("PUSH_IP","127.0.0.1");
 		PUSH_PORT = Integer.parseInt(prop.getProperty("PUSH_PORT","9090"));
+		BASEDIR = prop.getProperty("BASEDIR","/usr/local/hotfood/HotPointer/");
 		String method = prop.getProperty("METHOD","GET");
 		if(method.equalsIgnoreCase("ROLLBACK")){
 			METHOD = Operate.ROLLBACK;

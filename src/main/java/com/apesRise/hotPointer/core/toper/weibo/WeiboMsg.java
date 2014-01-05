@@ -2,7 +2,7 @@ package com.apesRise.hotPointer.core.toper.weibo;
 
 import com.apesRise.hotPointer.core.toper.MaxTopInterface;
 
-public class WeiboMsg implements MaxTopInterface<Double>{
+public class WeiboMsg implements MaxTopInterface<Double> {
 	private String idstr;
 	private String mid;
 	private String text;
@@ -11,8 +11,17 @@ public class WeiboMsg implements MaxTopInterface<Double>{
 	private int reposts_count;
 	private int comments_count;
 	private int attitudes_count;
+	private String bmiddle_pic;
 	private WeiboRetweeted retweeted_status;
 
+	public String getBmiddle_pic() {
+		return bmiddle_pic;
+	}
+
+	public void setBmiddle_pic(String bmiddle_pic) {
+		this.bmiddle_pic = bmiddle_pic;
+	}
+	
 	public String getIdstr() {
 		return idstr;
 	}
@@ -87,28 +96,32 @@ public class WeiboMsg implements MaxTopInterface<Double>{
 
 	@Override
 	public Double getTime() {
-		//userS = (followers_count / (friends_count+1)) +1 => [1,+∞]
-		//msg = ((attitudes_count+1)*2 +(comments_count+1)*1.5+reposts_count)  / 3
-		//reuserS = (followers_count / (friends_count+1)) +1 => [1,+∞]
-		//remsg = ((attitudes_count+1)*2 +(comments_count+1)*1.5+reposts_count)  / 3
-		//results = (userS * msg)+(reuserS+remsg)
-		
-		double userScore = (getUser().getFollowers_count() / (getUser().getFriends_count()+1)) +1;
-		double msgScore = ((getAttitudes_count()+1)*2 +(getComments_count()+1)*1.5+getReposts_count())/3;
-		
-		if(getRetweeted_status()==null){
-			return userScore*msgScore;
-		}else{
-			return userScore*msgScore+getRetweeted_status().getTime();
+		// userS = (followers_count / (friends_count+1)) +1 => [1,+∞]
+		// msg = ((attitudes_count+1)*2 +(comments_count+1)*1.5+reposts_count) /
+		// 3
+		// reuserS = (followers_count / (friends_count+1)) +1 => [1,+∞]
+		// remsg = ((attitudes_count+1)*2 +(comments_count+1)*1.5+reposts_count)
+		// / 3
+		// results = (userS * msg)+(reuserS+remsg)
+
+		double userScore = (getUser().getFollowers_count() / (getUser()
+				.getFriends_count() + 1)) + 1;
+		double msgScore = ((getAttitudes_count() + 1) * 2
+				+ (getComments_count() + 1) * 1.5 + getReposts_count()) / 3;
+
+		if (getRetweeted_status() == null) {
+			return userScore * msgScore;
+		} else {
+			return userScore * msgScore + getRetweeted_status().getTime();
 		}
 	}
 
 	@Override
 	public String getID() {
-		if(getRetweeted_status()==null){
+		if (getRetweeted_status() == null) {
 			return getIdstr();
-		}else{
-			return getIdstr()+getRetweeted_status().getIdstr();
+		} else {
+			return getIdstr() + getRetweeted_status().getIdstr();
 		}
 	}
 }

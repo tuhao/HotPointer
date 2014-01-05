@@ -25,10 +25,10 @@ public class Pusher {
 			Message msg = new Message();
 			msg.setTitle("热门美食");
 			if(cur.getRetweeted_status()!=null){
-				String m = cur.getText()+"转发=>"+cur.getRetweeted_status().getText();
+				String m = cur.getText()+cur.getBmiddle_pic()+"转发=>"+cur.getRetweeted_status().getText()+cur.getRetweeted_status().getBmiddle_pic();
 				msg.setContent(m);
 			}else{
-				msg.setContent(cur.getText());
+				msg.setContent(cur.getText()+cur.getBmiddle_pic());
 			}
 			result.add(msg);
 		}
@@ -55,10 +55,10 @@ public class Pusher {
 			try {
 				List<Message> result = convertWeiboMsgToMessage(request);
 				if(result!=null){
-//					return client.pushMsg(result);
-					for(Message cur:result){
-						client.pushString(cur.getContent());					
-					}
+					return client.pushMsg(result);
+//					for(Message cur:result){
+//						client.pushString(cur.getContent());					
+//					}
 					
 					
 				}
