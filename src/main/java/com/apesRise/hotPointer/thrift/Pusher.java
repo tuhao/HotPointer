@@ -64,7 +64,7 @@ public class Pusher {
 				}
 				return false;
 			} catch (TException e) {
-				// log
+				e.printStackTrace();
 				return false;
 			}
 			

@@ -31,17 +31,21 @@ public class Main {
 		Date date = calendar.getTime();
 		request.setStart(((date.getYear() % 100) * 10000)
 				+ ((date.getMonth() + 1) * 100) + date.getDate());
+		request.setScope(2);
 		Puller puller = new Puller();
 		System.out.println("start pull info");
 		List<Data> list = puller.pull(request);
 		System.out.println("pull info finish and list size is "+(list==null?0:list.size()));
 		Pusher pusher = new Pusher();
 
-		if (list == null)
+		if (list == null || list.size()==0)
 			return;
 		MaxTopo<WeiboMsg> toper = new MaxTopo<WeiboMsg>(100);
 		System.out.println("parse info ... ");
 		for (Data cur : list) {
+			
+			if(cur.getData().equals("")) continue;
+			
 			LogHelper.info(cur.data);
 			
 			String[] lists = cur.getData().split("\\}\\{");

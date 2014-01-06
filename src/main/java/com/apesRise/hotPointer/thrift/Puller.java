@@ -21,7 +21,7 @@ public class Puller {
 	 * pull info form crawler server
 	 * */
 	public List<Data> pull(Request request) {
-		TTransport transport = new TFramedTransport(new TSocket(Config.PULL_IP, Config.PULL_PORT,10000));
+		TTransport transport = new TFramedTransport(new TSocket(Config.PULL_IP, Config.PULL_PORT,20000),50 * 1024 * 1024);
 		try {
 			transport.open();
 		} catch (TTransportException e) {
@@ -32,12 +32,12 @@ public class Puller {
 			TProtocol protocol = new TBinaryProtocol(transport);
 			Client.Factory factory = new Client.Factory();
 			Client client = factory.getClient(protocol);
-
+			
 			List<Data> dataList = null;
 			try {
 				dataList = client.pull(request);
 			} catch (TException e) {
-				// log
+				e.printStackTrace();
 				return null;
 			}
 			
