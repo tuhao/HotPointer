@@ -1,6 +1,11 @@
 package com.apesRise.hotPointer.thrift;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -14,6 +19,7 @@ import com.apesRise.hotPointer.main.Config;
 import com.apesRise.hotPointer.thrift.crawler_gen.Data;
 import com.apesRise.hotPointer.thrift.crawler_gen.DataService.Client;
 import com.apesRise.hotPointer.thrift.crawler_gen.Request;
+import com.apesRise.hotPointer.thrift.push_gen.Message;
 
 public class Puller {
 
@@ -48,5 +54,6 @@ public class Puller {
 		}
 		
 	}
+	
 
 }
