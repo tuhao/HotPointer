@@ -85,7 +85,7 @@ public class ThriftClient {
 	
 	public static void main(String[] args) {
 		ThriftClient client = ThriftClient.getInstance();
-		System.out.println(client.pullBySort(10, 1));
+		System.out.println(client.pullBySort(20, 1));
 	}
 
 }
