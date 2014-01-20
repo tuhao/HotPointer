@@ -35,10 +35,12 @@ import org.slf4j.LoggerFactory;
 public class Message implements org.apache.thrift.TBase<Message, Message._Fields>, java.io.Serializable, Cloneable, Comparable<Message> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Message");
 
-  private static final org.apache.thrift.protocol.TField TITLE_FIELD_DESC = new org.apache.thrift.protocol.TField("title", org.apache.thrift.protocol.TType.STRING, (short)1);
-  private static final org.apache.thrift.protocol.TField CONTENT_FIELD_DESC = new org.apache.thrift.protocol.TField("content", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField REASON_FIELD_DESC = new org.apache.thrift.protocol.TField("reason", org.apache.thrift.protocol.TType.STRING, (short)3);
-  private static final org.apache.thrift.protocol.TField CREATE_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("create_time", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I32, (short)1);
+  private static final org.apache.thrift.protocol.TField TITLE_FIELD_DESC = new org.apache.thrift.protocol.TField("title", org.apache.thrift.protocol.TType.STRING, (short)2);
+  private static final org.apache.thrift.protocol.TField CONTENT_FIELD_DESC = new org.apache.thrift.protocol.TField("content", org.apache.thrift.protocol.TType.STRING, (short)3);
+  private static final org.apache.thrift.protocol.TField REASON_FIELD_DESC = new org.apache.thrift.protocol.TField("reason", org.apache.thrift.protocol.TType.STRING, (short)4);
+  private static final org.apache.thrift.protocol.TField CREATE_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("create_time", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField SORT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("sort_id", org.apache.thrift.protocol.TType.I32, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -46,17 +48,21 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
     schemes.put(TupleScheme.class, new MessageTupleSchemeFactory());
   }
 
+  public int id; // required
   public String title; // required
   public String content; // required
   public String reason; // required
   public String create_time; // required
+  public int sort_id; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    TITLE((short)1, "title"),
-    CONTENT((short)2, "content"),
-    REASON((short)3, "reason"),
-    CREATE_TIME((short)4, "create_time");
+    ID((short)1, "id"),
+    TITLE((short)2, "title"),
+    CONTENT((short)3, "content"),
+    REASON((short)4, "reason"),
+    CREATE_TIME((short)5, "create_time"),
+    SORT_ID((short)6, "sort_id");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -71,14 +77,18 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // TITLE
+        case 1: // ID
+          return ID;
+        case 2: // TITLE
           return TITLE;
-        case 2: // CONTENT
+        case 3: // CONTENT
           return CONTENT;
-        case 3: // REASON
+        case 4: // REASON
           return REASON;
-        case 4: // CREATE_TIME
+        case 5: // CREATE_TIME
           return CREATE_TIME;
+        case 6: // SORT_ID
+          return SORT_ID;
         default:
           return null;
       }
@@ -119,9 +129,14 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
   }
 
   // isset id assignments
+  private static final int __ID_ISSET_ID = 0;
+  private static final int __SORT_ID_ISSET_ID = 1;
+  private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.TITLE, new org.apache.thrift.meta_data.FieldMetaData("title", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.CONTENT, new org.apache.thrift.meta_data.FieldMetaData("content", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -130,6 +145,8 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.CREATE_TIME, new org.apache.thrift.meta_data.FieldMetaData("create_time", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.SORT_ID, new org.apache.thrift.meta_data.FieldMetaData("sort_id", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Message.class, metaDataMap);
   }
@@ -138,22 +155,30 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
   }
 
   public Message(
+    int id,
     String title,
     String content,
     String reason,
-    String create_time)
+    String create_time,
+    int sort_id)
   {
     this();
+    this.id = id;
+    setIdIsSet(true);
     this.title = title;
     this.content = content;
     this.reason = reason;
     this.create_time = create_time;
+    this.sort_id = sort_id;
+    setSort_idIsSet(true);
   }
 
   /**
    * Performs a deep copy on <i>other</i>.
    */
   public Message(Message other) {
+    __isset_bitfield = other.__isset_bitfield;
+    this.id = other.id;
     if (other.isSetTitle()) {
       this.title = other.title;
     }
@@ -166,6 +191,7 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
     if (other.isSetCreate_time()) {
       this.create_time = other.create_time;
     }
+    this.sort_id = other.sort_id;
   }
 
   public Message deepCopy() {
@@ -174,10 +200,37 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
 
   @Override
   public void clear() {
+    setIdIsSet(false);
+    this.id = 0;
     this.title = null;
     this.content = null;
     this.reason = null;
     this.create_time = null;
+    setSort_idIsSet(false);
+    this.sort_id = 0;
+  }
+
+  public int getId() {
+    return this.id;
+  }
+
+  public Message setId(int id) {
+    this.id = id;
+    setIdIsSet(true);
+    return this;
+  }
+
+  public void unsetId() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ID_ISSET_ID);
+  }
+
+  /** Returns true if field id is set (has been assigned a value) and false otherwise */
+  public boolean isSetId() {
+    return EncodingUtils.testBit(__isset_bitfield, __ID_ISSET_ID);
+  }
+
+  public void setIdIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ID_ISSET_ID, value);
   }
 
   public String getTitle() {
@@ -276,8 +329,39 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
     }
   }
 
+  public int getSort_id() {
+    return this.sort_id;
+  }
+
+  public Message setSort_id(int sort_id) {
+    this.sort_id = sort_id;
+    setSort_idIsSet(true);
+    return this;
+  }
+
+  public void unsetSort_id() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SORT_ID_ISSET_ID);
+  }
+
+  /** Returns true if field sort_id is set (has been assigned a value) and false otherwise */
+  public boolean isSetSort_id() {
+    return EncodingUtils.testBit(__isset_bitfield, __SORT_ID_ISSET_ID);
+  }
+
+  public void setSort_idIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SORT_ID_ISSET_ID, value);
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
+    case ID:
+      if (value == null) {
+        unsetId();
+      } else {
+        setId((Integer)value);
+      }
+      break;
+
     case TITLE:
       if (value == null) {
         unsetTitle();
@@ -310,11 +394,22 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
       }
       break;
 
+    case SORT_ID:
+      if (value == null) {
+        unsetSort_id();
+      } else {
+        setSort_id((Integer)value);
+      }
+      break;
+
     }
   }
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
+    case ID:
+      return Integer.valueOf(getId());
+
     case TITLE:
       return getTitle();
 
@@ -327,6 +422,9 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
     case CREATE_TIME:
       return getCreate_time();
 
+    case SORT_ID:
+      return Integer.valueOf(getSort_id());
+
     }
     throw new IllegalStateException();
   }
@@ -338,6 +436,8 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
     }
 
     switch (field) {
+    case ID:
+      return isSetId();
     case TITLE:
       return isSetTitle();
     case CONTENT:
@@ -346,6 +446,8 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
       return isSetReason();
     case CREATE_TIME:
       return isSetCreate_time();
+    case SORT_ID:
+      return isSetSort_id();
     }
     throw new IllegalStateException();
   }
@@ -362,6 +464,15 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
   public boolean equals(Message that) {
     if (that == null)
       return false;
+
+    boolean this_present_id = true;
+    boolean that_present_id = true;
+    if (this_present_id || that_present_id) {
+      if (!(this_present_id && that_present_id))
+        return false;
+      if (this.id != that.id)
+        return false;
+    }
 
     boolean this_present_title = true && this.isSetTitle();
     boolean that_present_title = true && that.isSetTitle();
@@ -399,6 +510,15 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
         return false;
     }
 
+    boolean this_present_sort_id = true;
+    boolean that_present_sort_id = true;
+    if (this_present_sort_id || that_present_sort_id) {
+      if (!(this_present_sort_id && that_present_sort_id))
+        return false;
+      if (this.sort_id != that.sort_id)
+        return false;
+    }
+
     return true;
   }
 
@@ -415,6 +535,16 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
 
     int lastComparison = 0;
 
+    lastComparison = Boolean.valueOf(isSetId()).compareTo(other.isSetId());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.id, other.id);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetTitle()).compareTo(other.isSetTitle());
     if (lastComparison != 0) {
       return lastComparison;
@@ -455,6 +585,16 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetSort_id()).compareTo(other.isSetSort_id());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetSort_id()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.sort_id, other.sort_id);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -475,6 +615,10 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
     StringBuilder sb = new StringBuilder("Message(");
     boolean first = true;
 
+    sb.append("id:");
+    sb.append(this.id);
+    first = false;
+    if (!first) sb.append(", ");
     sb.append("title:");
     if (this.title == null) {
       sb.append("null");
@@ -506,6 +650,10 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
       sb.append(this.create_time);
     }
     first = false;
+    if (!first) sb.append(", ");
+    sb.append("sort_id:");
+    sb.append(this.sort_id);
+    first = false;
     sb.append(")");
     return sb.toString();
   }
@@ -525,6 +673,8 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
 
   private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
     try {
+      // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+      __isset_bitfield = 0;
       read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
     } catch (org.apache.thrift.TException te) {
       throw new java.io.IOException(te);
@@ -549,7 +699,15 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
           break;
         }
         switch (schemeField.id) {
-          case 1: // TITLE
+          case 1: // ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.id = iprot.readI32();
+              struct.setIdIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // TITLE
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.title = iprot.readString();
               struct.setTitleIsSet(true);
@@ -557,7 +715,7 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // CONTENT
+          case 3: // CONTENT
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.content = iprot.readString();
               struct.setContentIsSet(true);
@@ -565,7 +723,7 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 3: // REASON
+          case 4: // REASON
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.reason = iprot.readString();
               struct.setReasonIsSet(true);
@@ -573,10 +731,18 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // CREATE_TIME
+          case 5: // CREATE_TIME
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.create_time = iprot.readString();
               struct.setCreate_timeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 6: // SORT_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
+              struct.sort_id = iprot.readI32();
+              struct.setSort_idIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -596,6 +762,9 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
+      oprot.writeFieldBegin(ID_FIELD_DESC);
+      oprot.writeI32(struct.id);
+      oprot.writeFieldEnd();
       if (struct.title != null) {
         oprot.writeFieldBegin(TITLE_FIELD_DESC);
         oprot.writeString(struct.title);
@@ -616,6 +785,9 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
         oprot.writeString(struct.create_time);
         oprot.writeFieldEnd();
       }
+      oprot.writeFieldBegin(SORT_ID_FIELD_DESC);
+      oprot.writeI32(struct.sort_id);
+      oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -634,19 +806,28 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
     public void write(org.apache.thrift.protocol.TProtocol prot, Message struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
       BitSet optionals = new BitSet();
-      if (struct.isSetTitle()) {
+      if (struct.isSetId()) {
         optionals.set(0);
       }
-      if (struct.isSetContent()) {
+      if (struct.isSetTitle()) {
         optionals.set(1);
       }
-      if (struct.isSetReason()) {
+      if (struct.isSetContent()) {
         optionals.set(2);
       }
-      if (struct.isSetCreate_time()) {
+      if (struct.isSetReason()) {
         optionals.set(3);
       }
-      oprot.writeBitSet(optionals, 4);
+      if (struct.isSetCreate_time()) {
+        optionals.set(4);
+      }
+      if (struct.isSetSort_id()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
+      if (struct.isSetId()) {
+        oprot.writeI32(struct.id);
+      }
       if (struct.isSetTitle()) {
         oprot.writeString(struct.title);
       }
@@ -659,27 +840,38 @@ public class Message implements org.apache.thrift.TBase<Message, Message._Fields
       if (struct.isSetCreate_time()) {
         oprot.writeString(struct.create_time);
       }
+      if (struct.isSetSort_id()) {
+        oprot.writeI32(struct.sort_id);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Message struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(4);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
+        struct.id = iprot.readI32();
+        struct.setIdIsSet(true);
+      }
+      if (incoming.get(1)) {
         struct.title = iprot.readString();
         struct.setTitleIsSet(true);
       }
-      if (incoming.get(1)) {
+      if (incoming.get(2)) {
         struct.content = iprot.readString();
         struct.setContentIsSet(true);
       }
-      if (incoming.get(2)) {
+      if (incoming.get(3)) {
         struct.reason = iprot.readString();
         struct.setReasonIsSet(true);
       }
-      if (incoming.get(3)) {
+      if (incoming.get(4)) {
         struct.create_time = iprot.readString();
         struct.setCreate_timeIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.sort_id = iprot.readI32();
+        struct.setSort_idIsSet(true);
       }
     }
   }
