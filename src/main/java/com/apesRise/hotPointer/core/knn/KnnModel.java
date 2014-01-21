@@ -22,7 +22,7 @@ public class KnnModel {
 	
 	private static void preProcess(){
 		Map<String,Integer> wordCount = new HashMap<String,Integer>();
-		List<Message> messages = ThriftClient.getInstance().pullBySort(300, 2);
+		List<Message> messages = ThriftClient.getInstance().pullBySort(30, 2);
 		for(Message msg : messages){
 			StringReader line = new StringReader(msg.getContent());
 			IKSegmenter segment = new IKSegmenter(line,true);
