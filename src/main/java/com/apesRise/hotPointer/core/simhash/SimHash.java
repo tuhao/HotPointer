@@ -2,37 +2,44 @@ package com.apesRise.hotPointer.core.simhash;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 public class SimHash {
+	
+	 private int msgId = 0;
 
     private String tokens;
-
+    
     private BigInteger intSimHash;
    
     private String strSimHash;
-
-    private int hashbits = 64;
-
+    
+    public static final int DISTANCE = 5;  //相似阈值
+ 
+    public static final int HASHBITS = 64;  //64bit
+    
+    public static final int DIVIDED = 4;   //分为4个16位段 
+    
     public SimHash(String tokens) {
-        this.tokens = tokens;
-        this.intSimHash = this.simHash();
-    }
+      this.tokens = tokens;
+      this.intSimHash = this.simHash();
+  }
 
-    public SimHash(String tokens, int hashbits) {
+    public SimHash(int msgId,String tokens) {
+    	  this.msgId = msgId;
         this.tokens = tokens;
-        this.hashbits = hashbits;
         this.intSimHash = this.simHash();
     }
 
     public BigInteger simHash() {
-        int[] v = new int[this.hashbits];
+        int[] v = new int[HASHBITS];
         StringTokenizer stringTokens = new StringTokenizer(this.tokens);
         while (stringTokens.hasMoreTokens()) {
             String temp = stringTokens.nextToken();
             BigInteger t = this.hash(temp);
-            for (int i = 0; i < this.hashbits; i++) {
+            for (int i = 0; i < HASHBITS; i++) {
                 BigInteger bitmask = new BigInteger("1").shiftLeft(i);
                  if (t.and(bitmask).signum() != 0) {
                     v[i] += 1;
@@ -43,7 +50,7 @@ public class SimHash {
         }
         BigInteger fingerprint = new BigInteger("0");
         StringBuffer simHashBuffer = new StringBuffer();
-        for (int i = 0; i < this.hashbits; i++) {
+        for (int i = 0; i < HASHBITS; i++) {
             if (v[i] >= 0) {
                 fingerprint = fingerprint.add(new BigInteger("1").shiftLeft(i));
                 simHashBuffer.append("1");
@@ -52,7 +59,7 @@ public class SimHash {
             }
         }
         this.strSimHash = simHashBuffer.toString();
-        System.out.println(this.strSimHash + " length " + this.strSimHash.length());
+//        System.out.println(this.strSimHash + " length " + this.strSimHash.length());
         return fingerprint;
     }
 
@@ -63,7 +70,7 @@ public class SimHash {
             char[] sourceArray = source.toCharArray();
             BigInteger x = BigInteger.valueOf(((long) sourceArray[0]) << 7);
             BigInteger m = new BigInteger("1000003");
-            BigInteger mask = new BigInteger("2").pow(this.hashbits).subtract(
+            BigInteger mask = new BigInteger("2").pow(HASHBITS).subtract(
                     new BigInteger("1"));
             for (char item : sourceArray) {
                 BigInteger temp = BigInteger.valueOf((long) item);
@@ -77,6 +84,7 @@ public class SimHash {
         }
     }
    
+    
    
 
     public int hammingDistance(SimHash other) {
@@ -112,13 +120,12 @@ public class SimHash {
     }
    
    
-    public List subByDistance(SimHash simHash, int distance){
-        int numEach = this.hashbits/(distance+1);
-        List characters = new ArrayList();
+    public List<BigInteger> subByDistance(SimHash simHash){
+        int numEach = HASHBITS/DIVIDED;
+        List<BigInteger> characters = new LinkedList<BigInteger>();
        
         StringBuffer buffer = new StringBuffer();
 
-        int k = 0;
         for( int i = 0; i < this.intSimHash.bitLength(); i++){
             boolean sr = simHash.intSimHash.testBit(i);
            
@@ -139,24 +146,55 @@ public class SimHash {
 
         return characters;
     }
+    
+    
    
-    public static void main(String[] args) {
-        String s = "This is a test string for testing";
+    public int getMsgId() {
+		return msgId;
+	}
 
-        SimHash hash1 = new SimHash(s, 64);
+	public void setMsgId(int msgId) {
+		this.msgId = msgId;
+	}
+	
+	
+	
+
+	public String getStrSimHash() {
+		return strSimHash;
+	}
+
+	public void setStrSimHash(String strSimHash) {
+		this.strSimHash = strSimHash;
+	}
+	
+	
+
+	public String getTokens() {
+		return tokens;
+	}
+
+	public void setTokens(String tokens) {
+		this.tokens = tokens;
+	}
+
+	public static void main(String[] args) {
+        String s = "This is a test string for testing als";
+
+        SimHash hash1 = new SimHash(s);
         System.out.println(hash1.intSimHash + "  " + hash1.intSimHash.bitLength());
        
-        hash1.subByDistance(hash1, 3);
+        hash1.subByDistance(hash1);
 
         System.out.println("\n");
-        s = "This is a test string for testing, This is a test string for testing abcdef";
-        SimHash hash2 = new SimHash(s, 64);
-        System.out.println(hash2.intSimHash+ "  " + hash2.intSimHash.bitCount());
-        hash1.subByDistance(hash2, 3);
         s = "This is a test string for testing als";
-        SimHash hash3 = new SimHash(s, 64);
+        SimHash hash2 = new SimHash(s);
+        System.out.println(hash2.intSimHash+ "  " + hash2.intSimHash.bitCount());
+        hash1.subByDistance(hash2);
+        s = "This is a test string for testing als";
+        SimHash hash3 = new SimHash(s);
         System.out.println(hash3.intSimHash+ "  " + hash3.intSimHash.bitCount());
-        hash1.subByDistance(hash3, 3);
+        hash1.subByDistance(hash3);
         System.out.println("============================");
         int dis = hash1.getDistance(hash1.strSimHash,hash2.strSimHash);
        
@@ -166,6 +204,9 @@ public class SimHash {
        
         System.out.println(hash1.hammingDistance(hash3) + " " + dis2);
         
+        System.out.println(hash1.strSimHash + " " + hash2.strSimHash);
+       
+        	
 
 
     }
