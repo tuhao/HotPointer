@@ -51,7 +51,7 @@
           <artifactId>IKAnalyzer</artifactId>
           <version>2012</version>
           <scope>system</scope>
-          <systemPath>/home/yasir/HotPointer/otherlib/IKAnalyzer2012_u6.jar</systemPath>
+          <systemPath>e:/HotPointer/otherlib/IKAnalyzer2012_u6.jar</systemPath>
        </dependency>
 	
   </dependencies>
