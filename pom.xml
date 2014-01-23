@@ -53,6 +53,8 @@
           <scope>system</scope>
           <systemPath>${project.basedir}/otherlib/IKAnalyzer2012_u6.jar</systemPath>
        </dependency>
+       
+       
 	
   </dependencies>
 

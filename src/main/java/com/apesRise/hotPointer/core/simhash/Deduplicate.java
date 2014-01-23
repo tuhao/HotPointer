@@ -2,13 +2,10 @@ package com.apesRise.hotPointer.core.simhash;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.wltea.analyzer.core.IKSegmenter;
 import org.wltea.analyzer.core.Lexeme;
@@ -34,10 +31,10 @@ public class Deduplicate {
 		ThriftClient client = ThriftClient.getInstance();
 		List<Message> msgs = client.pullBySort(200, 1);
 		Map<Integer,Message> msgMap = new HashMap<Integer,Message>();
+		List<Integer> deleteIds = new LinkedList<Integer>();
 		for (Message msg:msgs){
 			msgMap.put(msg.getId(), msg);
 			SimHash similarOne = null;
-			boolean hasSimilar = false;
 			StringReader line = new StringReader(msg.getContent());
 			IKSegmenter segment = new IKSegmenter(line, false);
 			StringBuffer sb = new StringBuffer();
@@ -53,8 +50,6 @@ public class Deduplicate {
 				for(int i =0;i < 64;i=i+16){
 					subs.add(simHash.getStrSimHash().substring(i, i + 16));
 				}
-				
-//				System.out.println(subs.size());
 				for(int i = 0;i < SimHash.DIVIDED;i++){
 					String sub = subs.get(i);
 					Map<String, List<SimHash>> LinkedMap= simHashMap.get(i);
@@ -65,7 +60,7 @@ public class Deduplicate {
 					}else{
 						for(SimHash item:LinkedMap.get(sub)){
 							if(simHash.hammingDistance(item) <= SimHash.DISTANCE){
-								hasSimilar = true;
+								deleteIds.add(simHash.getMsgId());
 								similarOne = item;
 								System.out.println("================================");
 								System.out.println("Older one msg: " + msgMap.get(similarOne.getMsgId()).getContent());
@@ -80,6 +75,7 @@ public class Deduplicate {
 						LinkedMap.get(sub).add(simHash);
 					}
 				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -87,12 +83,7 @@ public class Deduplicate {
 				er.printStackTrace();
 			}
 		}
+		client.deleteIds(deleteIds);
 	}
-	
-	private static void delete(int msgId){
-		System.out.println(msgId);
-	}
-	
-	
 
 }

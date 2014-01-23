@@ -40,7 +40,7 @@ public class ThriftClient {
 			String host = properties.getProperty("weixin.host");
 			String port = properties.getProperty("weixin.port");
 			
-			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),10000),50 * 1024 * 1024);
+			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),30000),50 * 1024 * 1024);
 			TProtocol protocol = new TBinaryProtocol(transport);
 			Client.Factory factory = new Client.Factory();
 			client = factory.getClient(protocol);
@@ -73,7 +73,7 @@ public class ThriftClient {
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
-			result = client.pullMsgBySort(size, sortId);
+			result = client.pullMsgBySort(size,sortId);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,9 +86,26 @@ public class ThriftClient {
 		return result;
 	}
 	
+	public boolean deleteIds(List<Integer> ids){
+			try {
+				transport.open();
+				System.out.println(client.deleteMsgs(ids));
+				return true;
+			} catch (TTransportException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally{
+				transport.close();
+			}
+			return false;
+	}
+	
 	public static void main(String[] args) {
 		ThriftClient client = ThriftClient.getInstance();
-		System.out.println(client.pullBySort(5, 1));
+		System.out.println(client.pullBySort(200, 1));
 	}
 
 }
