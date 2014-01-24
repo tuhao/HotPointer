@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.wltea.analyzer.core.IKSegmenter;
 import org.wltea.analyzer.core.Lexeme;
 
+import com.apesRise.hotPointer.core.simhash.CharacterEncoding;
 import com.apesRise.hotPointer.thrift.ThriftClient;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 
@@ -22,13 +23,14 @@ public class KnnModel {
 	
 	private static void preProcess(){
 		Map<String,Integer> wordCount = new HashMap<String,Integer>();
-		List<Message> messages = ThriftClient.getInstance().pullBySort(30, 2);
+		List<Message> messages = ThriftClient.getInstance().pullBySort(200, 1);
 		for(Message msg : messages){
 			StringReader line = new StringReader(msg.getContent());
 			IKSegmenter segment = new IKSegmenter(line,true);
 			try {
 				for(Lexeme lexeme = segment.next();lexeme != null;lexeme=segment.next()){
 					String word = lexeme.getLexemeText();
+					if (!CharacterEncoding.isChinese(word)) continue;
 					if(wordCount.get(word) != null){
 						wordCount.put(word, wordCount.get(word) + 1);
 					}else{

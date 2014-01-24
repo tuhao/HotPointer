@@ -3,9 +3,11 @@ package com.apesRise.hotPointer.core.simhash;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.wltea.analyzer.core.IKSegmenter;
 import org.wltea.analyzer.core.Lexeme;
@@ -15,26 +17,80 @@ import com.apesRise.hotPointer.thrift.push_gen.Message;
 
 public class Deduplicate {
 	
-	public static Map<Integer, Map<String, List<SimHash>>> simHashMap = new HashMap<Integer,Map<String,List<SimHash>>>();
-	static{
+	public static ThriftClient client = ThriftClient.getInstance();
+	
+	private static int itemNum = 500;
+	private static int meta = 1;
+	private static int approved = 2;
+	
+	public Map<Integer, Map<String, List<SimHash>>> simHashMapInit(){
+		Map<Integer, Map<String, List<SimHash>>> simHashMap = new HashMap<Integer,Map<String,List<SimHash>>>();
 		for(int i =0;i < SimHash.DIVIDED;i++){
 			Map<String, List<SimHash>> map = new HashMap<String,List<SimHash>>();
 			simHashMap.put(i, map);
 		}
+		return simHashMap;
+	}
+	
+	/**
+	 * 信息采集表去重
+	 */
+	public void dedupMetaDB(){
+		Deduplicate dedup = new Deduplicate();
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = client.getMsgCount();
+		for (int i =0;i < msgSum + itemNum;i = i + itemNum){
+			msgs.addAll(client.pullPaginateMsg(i,itemNum));
+		}
+		client.deleteIds(dedup.dedup(dedup.simHashMapInit(),msgs));
 	}
 	
 	public static void main(String[] args) {
-		dedupDB();
+		Deduplicate dedup = new Deduplicate();
+		dedup.dedupMetaDB();
+		
+		dedup = new Deduplicate();
+		dedup.syncApproved();
+		
 	}
 	
-	private static void dedupDB(){
-		ThriftClient client = ThriftClient.getInstance();
-		List<Message> msgs = client.pullBySort(200, 1);
-		Map<Integer,Message> msgMap = new HashMap<Integer,Message>();
-		List<Integer> deleteIds = new LinkedList<Integer>();
+	/**
+	 * 将审核通过的信息更新到信息查询表
+	 */
+	public void syncApproved(){
+		Deduplicate dedup = new Deduplicate();
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = client.getApproveCount();
+		for (int i =0;i < msgSum + itemNum;i = i + itemNum){
+			msgs.addAll(client.pullPaginateApprove(i,itemNum));
+		}
+		Map<Integer, Map<String, List<SimHash>>> simHashMap = dedup.simHashMapInit();
+		dedup.dedup(simHashMap,msgs);
+		
+		msgs = new LinkedList<Message>();
+		msgSum = client.getMsgCountBySort(approved);
+		for (int i =0;i < msgSum + itemNum;i = i + itemNum){
+			msgs.addAll(client.pullPaginateMsgBySort(i,itemNum,approved));
+		}
+		List<Integer> duplicates = dedup.dedup(simHashMap, msgs);
+		client.deleteIds(duplicates);
+		Set<Integer> cache = new HashSet<Integer>();
+		for(int msgId : duplicates){
+			cache.add(msgId);
+		}
+		List<Message> pushApproveList = new LinkedList<Message>();
+		for(Message msg : msgs){
+			if(cache.add(msg.getId())){
+				pushApproveList.add(msg);
+			}
+		}
+		client.pushApprove(pushApproveList);
+	}
+	
+	
+	public List<Integer> dedup(Map<Integer, Map<String, List<SimHash>>> simHashMap,List<Message> msgs){
+		List<Integer> dupicateIds = new LinkedList<Integer>();
 		for (Message msg:msgs){
-			msgMap.put(msg.getId(), msg);
-			SimHash similarOne = null;
 			StringReader line = new StringReader(msg.getContent());
 			IKSegmenter segment = new IKSegmenter(line, false);
 			StringBuffer sb = new StringBuffer();
@@ -52,7 +108,7 @@ public class Deduplicate {
 				}
 				for(int i = 0;i < SimHash.DIVIDED;i++){
 					String sub = subs.get(i);
-					Map<String, List<SimHash>> LinkedMap= simHashMap.get(i);
+					Map<String, List<SimHash>> LinkedMap = simHashMap.get(i);
 					if (LinkedMap.get(sub) == null){
 						List<SimHash> simHashList  = new LinkedList<SimHash>();
 						simHashList.add(simHash);
@@ -60,22 +116,13 @@ public class Deduplicate {
 					}else{
 						for(SimHash item:LinkedMap.get(sub)){
 							if(simHash.hammingDistance(item) <= SimHash.DISTANCE){
-								deleteIds.add(simHash.getMsgId());
-								similarOne = item;
-								System.out.println("================================");
-								System.out.println("Older one msg: " + msgMap.get(similarOne.getMsgId()).getContent());
-								System.out.println("Older one tokens: " + similarOne.getTokens());
-								System.out.println("Similar input: " + msgMap.get(simHash.getMsgId()).getContent());
-								System.out.println("Similar tokens : " + simHash.getTokens());
-								System.out.println("hammingDistance:" + simHash.hammingDistance(item));
-								System.out.println("================================");
+								dupicateIds.add(simHash.getMsgId());
 								break;
 							}
 						}
 						LinkedMap.get(sub).add(simHash);
 					}
 				}
-				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -83,7 +130,7 @@ public class Deduplicate {
 				er.printStackTrace();
 			}
 		}
-		client.deleteIds(deleteIds);
+		return dupicateIds;
 	}
 
 }

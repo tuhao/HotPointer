@@ -63,6 +63,23 @@ public class ThriftClient {
 		}
 	}
 	
+	public List<Message> pullMsg(int size){
+		List<Message> result = new LinkedList<Message>();
+		try {
+			transport.open();
+			result = client.pullMsg(size);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return result;
+	}
+	
 	/**
 	 * 
 	 * @param size
@@ -86,6 +103,11 @@ public class ThriftClient {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param ids
+	 * @return
+	 */
 	public boolean deleteIds(List<Integer> ids){
 			try {
 				transport.open();
@@ -103,9 +125,162 @@ public class ThriftClient {
 			return false;
 	}
 	
+	/**
+	 * 
+	 * @param startIndex
+	 * @param itemNum
+	 * @return
+	 */
+	public List<Message> pullPaginateMsg(int startIndex,int itemNum){
+		List<Message> result = new LinkedList<Message>();
+		try {
+			transport.open();
+			result = client.pullPaginateMsg(startIndex, itemNum);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @param startIndex
+	 * @param itemNum
+	 * @param sortId
+	 * @return
+	 */
+	public List<Message> pullPaginateMsgBySort(int startIndex,int itemNum,int sortId){
+		List<Message> result = new LinkedList<Message>();
+		try {
+			transport.open();
+			result = client.pullPaginateMsgBySort(startIndex, itemNum,sortId);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getMsgCount(){
+		try {
+			transport.open();
+			return client.getMsgCount();
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 
+	 * @param sort_id
+	 * @return
+	 */
+	public int getMsgCountBySort(int sort_id){
+		try {
+			transport.open();
+			return client.getMsgCountBySort(sort_id);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public int getApproveCount(){
+		try {
+			transport.open();
+			return client.getApproveCount();
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 
+	 * @param startIndex
+	 * @param itemNum
+	 * @return
+	 */
+	public List<Message> pullPaginateApprove(int startIndex,int itemNum){
+		List<Message> result = new LinkedList<Message>();
+		try {
+			transport.open();
+			result = client.pullApprove(startIndex, itemNum);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public int pushApprove(List<Message> list){
+		int count = 0;
+		try {
+			transport.open();
+			count = client.pushApprove(list);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return count;
+	}
+	
 	public static void main(String[] args) {
 		ThriftClient client = ThriftClient.getInstance();
-		System.out.println(client.pullBySort(200, 1));
+		System.out.println(client.pullPaginateMsgBySort(0, 5,1));
 	}
 
 }
