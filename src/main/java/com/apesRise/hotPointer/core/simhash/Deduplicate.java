@@ -39,17 +39,22 @@ public class Deduplicate {
 		Deduplicate dedup = new Deduplicate();
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = client.getMsgCount();
-		for (int i =0;i < msgSum + itemNum;i = i + itemNum){
+		for (int i =0;i < msgSum;i = i + itemNum){
 			msgs.addAll(client.pullPaginateMsg(i,itemNum));
 		}
-		client.deleteIds(dedup.dedup(dedup.simHashMapInit(),msgs));
+		List<Integer> duplicates = dedup.dedup(dedup.simHashMapInit(),msgs);
+		client.deleteIds(duplicates);
+		for(int id:duplicates){
+			System.out.println("delete " + id);
+		}
+		System.out.println(duplicates.size() + " duplicates items deleted");
 	}
 	
 	public static void main(String[] args) {
 		Deduplicate dedup = new Deduplicate();
-		dedup.dedupMetaDB();
+//		dedup.dedupMetaDB();
 		
-		dedup = new Deduplicate();
+//		dedup = new Deduplicate();
 		dedup.syncApproved();
 		
 	}
@@ -61,7 +66,7 @@ public class Deduplicate {
 		Deduplicate dedup = new Deduplicate();
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = client.getApproveCount();
-		for (int i =0;i < msgSum + itemNum;i = i + itemNum){
+		for (int i =0;i < msgSum;i = i + itemNum){
 			msgs.addAll(client.pullPaginateApprove(i,itemNum));
 		}
 		Map<Integer, Map<String, List<SimHash>>> simHashMap = dedup.simHashMapInit();
@@ -69,11 +74,12 @@ public class Deduplicate {
 		
 		msgs = new LinkedList<Message>();
 		msgSum = client.getMsgCountBySort(approved);
-		for (int i =0;i < msgSum + itemNum;i = i + itemNum){
+		for (int i =0;i < msgSum;i = i + itemNum){
 			msgs.addAll(client.pullPaginateMsgBySort(i,itemNum,approved));
 		}
 		List<Integer> duplicates = dedup.dedup(simHashMap, msgs);
 		client.deleteIds(duplicates);
+		System.out.println(duplicates.size() + " duplicates messages deleted");
 		Set<Integer> cache = new HashSet<Integer>();
 		for(int msgId : duplicates){
 			cache.add(msgId);
@@ -85,6 +91,10 @@ public class Deduplicate {
 			}
 		}
 		client.pushApprove(pushApproveList);
+		for(Message msg:pushApproveList){
+			System.out.println("push approved message:" + msg.getContent());
+		}
+		System.out.println(pushApproveList.size() + " approved messages pushed");
 	}
 	
 	
