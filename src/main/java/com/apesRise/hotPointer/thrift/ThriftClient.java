@@ -64,7 +64,7 @@ public class ThriftClient {
 		}
 	}
 	
-	public List<Message> pullMsg(int size){
+	private List<Message> pullMsg(int size){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -84,10 +84,10 @@ public class ThriftClient {
 	/**
 	 * 
 	 * @param size
-	 * @param sortId 1:meta_data 2:approve_data
+	 * @param sortId 1:meta_data 2:approve_data 3:unrelated_data
 	 * @return
 	 */
-	public List<Message> pullBySort(int size,int sortId){
+	private List<Message> pullBySort(int size,int sortId){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -299,11 +299,11 @@ public class ThriftClient {
 		return msgs;
 	}
 	
-	public List<Message> getAllUnApproved(){
+	public List<Message> getAllUnRelated(){
 		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = getMsgCountBySort(Constant.META);
+		int msgSum = getMsgCountBySort(Constant.UNRELATED);
 		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.META));
+			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.UNRELATED));
 		}
 		return msgs;
 	}

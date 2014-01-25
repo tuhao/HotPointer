@@ -1,7 +1,5 @@
 package com.apesRise.hotPointer.core.byes;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
@@ -21,7 +19,7 @@ public class ByesLearn {
 	public static Map<String,Double> propMap = new HashMap<String,Double>();
 	
 	static{
-		List<Message> unApprovedMsgs = client.getAllUnApproved();
+		List<Message> unApprovedMsgs = client.getAllUnRelated();
 		Map<String,Double> primaryMap = wordFrequece(wordCount(unApprovedMsgs),1);
 		
 		List<Message> approvedMsgs = client.getAllSyncApproved();

@@ -1,7 +1,5 @@
 package com.apesRise.hotPointer.core.knn;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -10,12 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.wltea.analyzer.core.IKSegmenter;
-import org.wltea.analyzer.core.Lexeme;
 
 import com.apesRise.hotPointer.thrift.ThriftClient;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
-import com.apesRise.hotPointer.util.CharacterEncoding;
 import com.apesRise.hotPointer.util.WordCount;
 
 public class KnnModel {
@@ -24,7 +19,7 @@ public class KnnModel {
 	
 	private static void preProcess(){
 		Map<String,Integer> wordCount = new HashMap<String,Integer>();
-		List<Message> messages = ThriftClient.getInstance().pullBySort(200, 1);
+		List<Message> messages = ThriftClient.getInstance().getAllUnRelated();
 		for(Message msg : messages){
 			WordCount.chineseCharacterWordCount(wordCount, msg.getContent());
 		}
