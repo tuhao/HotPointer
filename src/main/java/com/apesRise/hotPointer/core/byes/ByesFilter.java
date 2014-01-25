@@ -1,10 +1,7 @@
 package com.apesRise.hotPointer.core.byes;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;

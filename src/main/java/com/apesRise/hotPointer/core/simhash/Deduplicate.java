@@ -21,8 +21,6 @@ public class Deduplicate {
 	public static ThriftClient client = ThriftClient.getInstance();
 	
 	private static int itemNum = 500;
-	private static int meta = 1;
-	private static int approved = 2;
 	
 	public Map<Integer, Map<String, List<SimHash>>> simHashMapInit(){
 		Map<Integer, Map<String, List<SimHash>>> simHashMap = new HashMap<Integer,Map<String,List<SimHash>>>();
@@ -53,9 +51,9 @@ public class Deduplicate {
 	
 	public static void main(String[] args) {
 		Deduplicate dedup = new Deduplicate();
-//		dedup.dedupMetaDB();
+		dedup.dedupMetaDB();
 		
-//		dedup = new Deduplicate();
+		dedup = new Deduplicate();
 		dedup.syncApproved();
 		
 	}
@@ -72,8 +70,7 @@ public class Deduplicate {
 		
 		msgs = client.getAllUnSyncApproved();
 		List<Integer> duplicates = dedup.dedup(simHashMap, msgs);
-		client.deleteIds(duplicates);
-		System.out.println(duplicates.size() + " duplicates messages deleted");
+		
 		Set<Integer> cache = new HashSet<Integer>();
 		for(int msgId : duplicates){
 			cache.add(msgId);
@@ -86,9 +83,12 @@ public class Deduplicate {
 		}
 		client.pushApprove(pushApproveList);
 		for(Message msg:pushApproveList){
+			duplicates.add(msg.getId());
 			System.out.println("push approved message:" + msg.getContent());
 		}
 		System.out.println(pushApproveList.size() + " approved messages pushed");
+		client.deleteIds(duplicates);
+		System.out.println(duplicates.size() + " duplicates messages deleted");
 	}
 	
 	
