@@ -17,6 +17,7 @@ import org.apache.thrift.transport.TTransportException;
 
 import com.apesRise.hotPointer.thrift.push_gen.DataService.Client;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
+import com.apesRise.hotPointer.util.Constant;
 
 public class ThriftClient {
 	
@@ -277,6 +278,36 @@ public class ThriftClient {
 		}
 		return count;
 	}
+	
+	private static int itemNum = 500;
+	
+	public List<Message> getAllSyncApproved(){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getApproveCount();
+		for (int i =0;i < msgSum;i = i + itemNum){
+			msgs.addAll(pullPaginateApprove(i,itemNum));
+		}
+		return msgs;
+	}
+	
+	public List<Message> getAllUnSyncApproved(){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getMsgCountBySort(Constant.APPROVED);
+		for (int i =0;i < msgSum;i = i + itemNum){
+			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.APPROVED));
+		}
+		return msgs;
+	}
+	
+	public List<Message> getAllUnApproved(){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getMsgCountBySort(Constant.META);
+		for (int i =0;i < msgSum;i = i + itemNum){
+			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.META));
+		}
+		return msgs;
+	}
+	
 	
 	public static void main(String[] args) {
 		ThriftClient client = ThriftClient.getInstance();

@@ -14,6 +14,7 @@ import org.wltea.analyzer.core.Lexeme;
 
 import com.apesRise.hotPointer.thrift.ThriftClient;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
+import com.apesRise.hotPointer.util.CharacterEncoding;
 
 public class Deduplicate {
 	
@@ -64,19 +65,12 @@ public class Deduplicate {
 	 */
 	public void syncApproved(){
 		Deduplicate dedup = new Deduplicate();
-		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = client.getApproveCount();
-		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(client.pullPaginateApprove(i,itemNum));
-		}
+		List<Message> msgs = client.getAllSyncApproved();
+		
 		Map<Integer, Map<String, List<SimHash>>> simHashMap = dedup.simHashMapInit();
 		dedup.dedup(simHashMap,msgs);
 		
-		msgs = new LinkedList<Message>();
-		msgSum = client.getMsgCountBySort(approved);
-		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(client.pullPaginateMsgBySort(i,itemNum,approved));
-		}
+		msgs = client.getAllUnSyncApproved();
 		List<Integer> duplicates = dedup.dedup(simHashMap, msgs);
 		client.deleteIds(duplicates);
 		System.out.println(duplicates.size() + " duplicates messages deleted");
