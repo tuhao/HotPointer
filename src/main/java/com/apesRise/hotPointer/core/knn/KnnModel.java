@@ -19,15 +19,18 @@ import com.apesRise.hotPointer.util.WordCount;
 public class KnnModel {
 	
 	private static List<String> properties = new LinkedList<String>();
-	private static List<KNN> metric = new LinkedList<KNN>();
+	public static List<KNN> metric = new LinkedList<KNN>();
+	
+	private static int k = 7;
 	
 	static class KNN{
 		int msgId;
 		List<Map<String,Integer>> valueMaps;
 		boolean result = false;
-		
-		public KNN(int msgId,List<Map<String,Integer>> valueMaps,boolean result){
+		String content;
+		public KNN(int msgId,String content,List<Map<String,Integer>> valueMaps,boolean result){
 			this.msgId = msgId;
+			this.content = content;
 			this.valueMaps = valueMaps;
 			this.result = result;
 		}
@@ -59,6 +62,12 @@ public class KnnModel {
 		initKnnModel(metric,properties,unApprovedMsgs,false);
 	}
 	
+	public static boolean judge(String content){
+		Map<KNN,Integer> distanceMap = new HashMap<KNN,Integer>();
+		distanceMap(distanceMap,content,metric);
+		return findKNeibor(distanceMap);
+	}
+	
 	private static void initKnnModel(List<KNN> metric,List<String> properties,List<Message> msgs,boolean result){
 		for(Message msg:msgs){
 			List<Map<String,Integer>> valueMaps = new LinkedList<Map<String,Integer>>();
@@ -69,16 +78,68 @@ public class KnnModel {
 				if (wordCountMap.get(property) == null){
 					valueMap.put(property,0);
 				}else{
-					//计算值
-					
 					valueMap.put(property,wordCountMap.get(property));
 				}
 				valueMaps.add(valueMap);
 			}
-			metric.add(new KNN(msg.getId(),valueMaps,result));
+			metric.add(new KNN(msg.getId(),msg.getContent(),valueMaps,result));
 		}
 	}
 	
+	
+	private static void distanceMap(Map<KNN,Integer> distanceMap,String content,List<KNN> metric){
+		Map<String,Integer> wordCountMap = new HashMap<String,Integer>();
+		WordCount.chineseCharacterWordCount(wordCountMap, content);
+		for(KNN knn:metric){
+			int distance = 0;
+			for(Map<String,Integer> valueMap : knn.valueMaps){
+				for(Iterator<Entry<String,Integer>> it = valueMap.entrySet().iterator();it.hasNext();){
+					Entry<String,Integer> entry = (Entry<String,Integer>)it.next();
+					String property = entry.getKey();
+					int value = entry.getValue();
+					Integer x = wordCountMap.get(property);
+					x = x == null ? 0 : x.intValue();
+					distance += (value - x) * (value - x) ;
+				}
+			}
+			distanceMap.put(knn, distance);
+		}
+		
+	}
+	
+	private static boolean findKNeibor(Map<KNN,Integer> distanceMap){
+		Map<Integer,List<KNN>> sortMap = new HashMap<Integer,List<KNN>>();
+		for(Iterator<Entry<KNN,Integer>> it = distanceMap.entrySet().iterator();it.hasNext();){
+			Entry<KNN,Integer> entry = (Entry<KNN,Integer>)it.next();
+			KNN knn = (KNN)entry.getKey();
+			int distance = (Integer)entry.getValue();
+			if(sortMap.get(distance) != null){
+				sortMap.get(distance).add(knn);
+			}else{
+				List<KNN> list = new LinkedList<KNN>();
+				list.add(knn);
+				sortMap.put(distance, list);
+			}
+		}
+		Integer[] counts = new Integer[sortMap.size()];
+		sortMap.keySet().toArray(counts);
+		Arrays.sort(counts);
+		int right = 0;
+		int wrong = 0;
+		for(int i = 0 ;i < counts.length;i++){
+			for (KNN knn :sortMap.get(counts[i])){
+				if(knn.result){
+					right ++;
+				}else{
+					wrong ++;
+				}
+//				System.out.println(counts[i] + " : " + knn.result + " " +  knn.content);
+				if (right + wrong >= k) break;
+			}
+			if(right + wrong >= k) break;
+		}
+		return right > wrong ? true : false;
+	}
 	
 	
 	private static void preProcess(){

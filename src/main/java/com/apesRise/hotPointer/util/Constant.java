@@ -8,9 +8,9 @@ public class Constant {
 	
 	public final static int UNRELATED = 3;
 	
-	public final static String UNRELATED_DIR = "data_sets/unrelated/";
+	public final static String UNRELATED_DIR = "train/unrelated/";
 	
-	public final static String APPROVE_DIR = "data_sets/approve/";
+	public final static String APPROVE_DIR = "train/approve/";
 	
 	public final static String KNN_PROPERTY_FILE = "KnnProperties.txt";
 
