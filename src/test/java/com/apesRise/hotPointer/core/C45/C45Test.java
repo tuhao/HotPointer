@@ -66,14 +66,13 @@ public class C45Test
 		
 		c45.build();
 
-
 		DecisionTree tree = c45.getDecisionTree();
 		tree.prune();
 		TreeView view = new TreeView(tree);
 
 		System.out.println(view);
 		
-		String[] testData = new String[]{"a","1.977398","-1"};
+		String[] testData = new String[]{"a","1.977398"};
 		String test = tree.classify(testData);
 		System.out.println(test);
 		
