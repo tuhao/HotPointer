@@ -42,7 +42,7 @@ public class ThriftClient {
 			String host = properties.getProperty("weixin.host");
 			String port = properties.getProperty("weixin.port");
 			
-			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),30000),50 * 1024 * 1024);
+			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),3000),50 * 1024 * 1024);
 			TProtocol protocol = new TBinaryProtocol(transport);
 			Client.Factory factory = new Client.Factory();
 			client = factory.getClient(protocol);
@@ -317,6 +317,7 @@ public class ThriftClient {
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getMsgCountBySort(Constant.UNRELATED);
 		for (int i =0;i < msgSum;i = i + itemNum){
+//			System.out.println(msgs.size());
 			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.UNRELATED));
 		}
 		return msgs;
@@ -338,7 +339,26 @@ public class ThriftClient {
 	
 	public static void main(String[] args) {
 		ThriftClient client = ThriftClient.getInstance();
-		System.out.println(client.pullPaginateMsgBySort(0, 5,1));
+		System.out.println(client.getAllUnRelated());
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 }
