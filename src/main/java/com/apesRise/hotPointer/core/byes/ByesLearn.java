@@ -28,10 +28,10 @@ public class ByesLearn {
 	
 	private static void learnFromRemote(){
 		List<Message> unApprovedMsgs = client.getAllUnRelated();
-		Map<String,Double> primaryMap = wordFrequece(wordCount(unApprovedMsgs),unApprovedMsgs.size(),1);
+		Map<String,Double> primaryMap = wordFrequece(wordCount(unApprovedMsgs),1);
 		
 		List<Message> approvedMsgs = client.getAllSyncApproved();
-		Map<String,Double> aidMap = wordFrequece(wordCount(approvedMsgs),approvedMsgs.size(),2);
+		Map<String,Double> aidMap = wordFrequece(wordCount(approvedMsgs),2);
 		
 		propMap = wordProp(primaryMap,aidMap);
 	}
@@ -44,7 +44,7 @@ public class ByesLearn {
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			unApprovedMsgs.add(msg);
 		}
-		Map<String,Double> primaryMap = wordFrequece(wordCount(unApprovedMsgs),unApprovedMsgs.size(),1);
+		Map<String,Double> primaryMap = wordFrequece(wordCount(unApprovedMsgs),1);
 		
 		List<Message> approvedMsgs = new LinkedList<Message>();
 		File approve = new File(Constant.APPROVE_DIR);
@@ -53,7 +53,7 @@ public class ByesLearn {
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			approvedMsgs.add(msg);
 		}
-		Map<String,Double> aidMap = wordFrequece(wordCount(approvedMsgs),approvedMsgs.size(),2);
+		Map<String,Double> aidMap = wordFrequece(wordCount(approvedMsgs),2);
 		propMap = wordProp(primaryMap,aidMap);
 	}
 	
@@ -76,9 +76,9 @@ public class ByesLearn {
 	 * @param multy
 	 * @return
 	 */
-	private static Map<String,Double> wordFrequece(Map<String,Integer> wordCountMap,int sum,int multy){
+	private static Map<String,Double> wordFrequece(Map<String,Integer> wordCountMap,int multy){
 		Map<String,Double> wordFrequenceMap = new HashMap<String, Double>();
-		BigDecimal clusterSum = new BigDecimal(sum);
+		BigDecimal clusterSum = new BigDecimal(wordCountMap.size());
 		for(Iterator<Entry<String, Integer>> it = wordCountMap.entrySet().iterator();it.hasNext();){
 			Entry<String, Integer> entry = (Entry<String, Integer>)it.next();
 			String word = (String)entry.getKey();
