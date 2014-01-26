@@ -1,10 +1,7 @@
 package com.apesRise.hotPointer.core.byes;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,7 +14,7 @@ import com.apesRise.hotPointer.util.WordCount;
 
 public class ByesFilter {
 	
-	private static int tokenNum = 7;
+	private static int tokenNum = 3;
 	private static double defaultProp = 0.40;
 	
 	public static double prop(String text){

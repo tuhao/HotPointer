@@ -4,3 +4,4 @@ target/*
 .project
 .settings
 .properties
+data_sets/*

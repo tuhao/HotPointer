@@ -18,6 +18,7 @@ import org.apache.thrift.transport.TTransportException;
 import com.apesRise.hotPointer.thrift.push_gen.DataService.Client;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
+import com.apesRise.hotPointer.util.WFile;
 
 public class ThriftClient {
 	
@@ -31,6 +32,7 @@ public class ThriftClient {
 	
 	private Client client = null;
 	private TTransport transport = null;
+	private static int itemNum = 200;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -41,7 +43,7 @@ public class ThriftClient {
 			String host = properties.getProperty("weixin.host");
 			String port = properties.getProperty("weixin.port");
 			
-			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),30000),50 * 1024 * 1024);
+			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),3000),50 * 1024 * 1024);
 			TProtocol protocol = new TBinaryProtocol(transport);
 			Client.Factory factory = new Client.Factory();
 			client = factory.getClient(protocol);
@@ -64,7 +66,8 @@ public class ThriftClient {
 		}
 	}
 	
-	public List<Message> pullMsg(int size){
+	@Deprecated
+	private List<Message> pullMsg(int size){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -84,10 +87,11 @@ public class ThriftClient {
 	/**
 	 * 
 	 * @param size
-	 * @param sortId 1:meta_data 2:approve_data
+	 * @param sortId 1:meta_data 2:approve_data 3:unrelated_data
 	 * @return
 	 */
-	public List<Message> pullBySort(int size,int sortId){
+	@Deprecated
+	private List<Message> pullBySort(int size,int sortId){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -105,8 +109,8 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
-	 * @param ids
+	 * 删除元数据
+	 * @param ids 元数据id列表
 	 * @return
 	 */
 	public boolean deleteIds(List<Integer> ids){
@@ -127,12 +131,12 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
-	 * @param startIndex
-	 * @param itemNum
+	 * 根据分类查询元数据
+	 * @param startIndex 开始索引
+	 * @param itemNum	item个数
 	 * @return
 	 */
-	public List<Message> pullPaginateMsg(int startIndex,int itemNum){
+	private List<Message> pullPaginateMsg(int startIndex,int itemNum){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -150,13 +154,13 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
-	 * @param startIndex
-	 * @param itemNum
-	 * @param sortId
+	 * 分页形式根据分类查询元数据
+	 * @param startIndex 开始索引
+	 * @param itemNum item个数
+	 * @param sortId 1:meta_data 2:approve_data 3:unrelated_data
 	 * @return
 	 */
-	public List<Message> pullPaginateMsgBySort(int startIndex,int itemNum,int sortId){
+	private List<Message> pullPaginateMsgBySort(int startIndex,int itemNum,int sortId){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -174,10 +178,10 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 取得元数据总数
 	 * @return
 	 */
-	public int getMsgCount(){
+	private int getMsgCount(){
 		try {
 			transport.open();
 			return client.getMsgCount();
@@ -194,11 +198,11 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 根据分类查询元数据
 	 * @param sort_id
 	 * @return
 	 */
-	public int getMsgCountBySort(int sort_id){
+	private int getMsgCountBySort(int sort_id){
 		try {
 			transport.open();
 			return client.getMsgCountBySort(sort_id);
@@ -215,10 +219,10 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 取得索引总数
 	 * @return
 	 */
-	public int getApproveCount(){
+	private int getApproveCount(){
 		try {
 			transport.open();
 			return client.getApproveCount();
@@ -235,12 +239,12 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 分页形式拉取索引数据
 	 * @param startIndex
 	 * @param itemNum
 	 * @return
 	 */
-	public List<Message> pullPaginateApprove(int startIndex,int itemNum){
+	private List<Message> pullPaginateApprove(int startIndex,int itemNum){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -258,7 +262,7 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 将已审核通过的信息推送入索引
 	 * @param list
 	 * @return
 	 */
@@ -279,8 +283,11 @@ public class ThriftClient {
 		return count;
 	}
 	
-	private static int itemNum = 500;
-	
+
+	/**
+	 * 拉取所有索引数据
+	 * @return List<Message>
+	 */
 	public List<Message> getAllSyncApproved(){
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getApproveCount();
@@ -290,6 +297,10 @@ public class ThriftClient {
 		return msgs;
 	}
 	
+	/**
+	 * 拉取所有已通过审核但未同步到索引的元数据
+	 * @return List<Message>
+	 */
 	public List<Message> getAllUnSyncApproved(){
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getMsgCountBySort(Constant.APPROVED);
@@ -299,19 +310,70 @@ public class ThriftClient {
 		return msgs;
 	}
 	
-	public List<Message> getAllUnApproved(){
+	/**
+	 * 拉取所有审核判定为无关的元数据
+	 * @return
+	 */
+	public List<Message> getAllUnRelated(){
 		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = getMsgCountBySort(Constant.META);
+		int msgSum = getMsgCountBySort(Constant.UNRELATED);
 		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.META));
+//			System.out.println(msgs.size());
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(msgs.size());
+			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.UNRELATED));
+		}
+		return msgs;
+	}
+	
+	/**
+	 * 拉取所有元数据
+	 * @return
+	 */
+	public List<Message> getAllMsg(){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getMsgCount();
+		for (int i =0;i < msgSum;i = i + itemNum){
+			msgs.addAll(pullPaginateMsg(i,itemNum));
 		}
 		return msgs;
 	}
 	
 	
 	public static void main(String[] args) {
+//		String path = "data_sets/unrelated/";
+		String path = "data_sets/approve/";
 		ThriftClient client = ThriftClient.getInstance();
-		System.out.println(client.pullPaginateMsgBySort(0, 5,1));
+//		List<Message> unRelated = client.getAllSyncApproved();
+//		for(Message msg:unRelated){
+//			String filename = path + msg.getId() + ".txt";
+//			WFile.wf(filename, msg.getContent(), false);
+//		}
+		System.out.println(client.getApproveCount());
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 }

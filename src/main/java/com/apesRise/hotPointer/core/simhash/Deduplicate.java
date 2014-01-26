@@ -19,12 +19,9 @@ import com.apesRise.hotPointer.util.CharacterEncoding;
 public class Deduplicate {
 	
 	public static ThriftClient client = ThriftClient.getInstance();
-	
-	private static int itemNum = 500;
-	private static int meta = 1;
-	private static int approved = 2;
-	
+		
 	public Map<Integer, Map<String, List<SimHash>>> simHashMapInit(){
+		
 		Map<Integer, Map<String, List<SimHash>>> simHashMap = new HashMap<Integer,Map<String,List<SimHash>>>();
 		for(int i =0;i < SimHash.DIVIDED;i++){
 			Map<String, List<SimHash>> map = new HashMap<String,List<SimHash>>();
@@ -38,27 +35,15 @@ public class Deduplicate {
 	 */
 	public void dedupMetaDB(){
 		Deduplicate dedup = new Deduplicate();
-		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = client.getMsgCount();
-		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(client.pullPaginateMsg(i,itemNum));
-		}
+		List<Message> msgs = client.getAllMsg();
 		List<Integer> duplicates = dedup.dedup(dedup.simHashMapInit(),msgs);
 		client.deleteIds(duplicates);
-		for(int id:duplicates){
-			System.out.println("delete " + id);
-		}
+//		for(int id:duplicates){
+//			System.out.println("delete " + id);
+//		}
 		System.out.println(duplicates.size() + " duplicates items deleted");
 	}
 	
-	public static void main(String[] args) {
-		Deduplicate dedup = new Deduplicate();
-//		dedup.dedupMetaDB();
-		
-//		dedup = new Deduplicate();
-		dedup.syncApproved();
-		
-	}
 	
 	/**
 	 * 将审核通过的信息更新到信息查询表
@@ -72,8 +57,7 @@ public class Deduplicate {
 		
 		msgs = client.getAllUnSyncApproved();
 		List<Integer> duplicates = dedup.dedup(simHashMap, msgs);
-		client.deleteIds(duplicates);
-		System.out.println(duplicates.size() + " duplicates messages deleted");
+		
 		Set<Integer> cache = new HashSet<Integer>();
 		for(int msgId : duplicates){
 			cache.add(msgId);
@@ -86,12 +70,20 @@ public class Deduplicate {
 		}
 		client.pushApprove(pushApproveList);
 		for(Message msg:pushApproveList){
+			duplicates.add(msg.getId());
 			System.out.println("push approved message:" + msg.getContent());
 		}
 		System.out.println(pushApproveList.size() + " approved messages pushed");
+		client.deleteIds(duplicates);
+		System.out.println(duplicates.size() + " duplicates messages deleted");
 	}
 	
-	
+	/**
+	 * simHash 去重
+	 * @param simHashMap
+	 * @param msgs
+	 * @return
+	 */
 	public List<Integer> dedup(Map<Integer, Map<String, List<SimHash>>> simHashMap,List<Message> msgs){
 		List<Integer> dupicateIds = new LinkedList<Integer>();
 		for (Message msg:msgs){
@@ -135,6 +127,16 @@ public class Deduplicate {
 			}
 		}
 		return dupicateIds;
+	}
+	
+
+	public static void main(String[] args) {
+		Deduplicate dedup = new Deduplicate();
+		dedup.dedupMetaDB();
+		
+		dedup = new Deduplicate();
+		dedup.syncApproved();
+		
 	}
 
 }
