@@ -31,7 +31,7 @@ public class ThriftClient {
 	
 	private Client client = null;
 	private TTransport transport = null;
-	private static int itemNum = 500;
+	private static int itemNum = 200;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
