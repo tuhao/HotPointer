@@ -31,6 +31,7 @@ public class ThriftClient {
 	
 	private Client client = null;
 	private TTransport transport = null;
+	private static int itemNum = 500;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -64,6 +65,7 @@ public class ThriftClient {
 		}
 	}
 	
+	@Deprecated
 	private List<Message> pullMsg(int size){
 		List<Message> result = new LinkedList<Message>();
 		try {
@@ -87,6 +89,7 @@ public class ThriftClient {
 	 * @param sortId 1:meta_data 2:approve_data 3:unrelated_data
 	 * @return
 	 */
+	@Deprecated
 	private List<Message> pullBySort(int size,int sortId){
 		List<Message> result = new LinkedList<Message>();
 		try {
@@ -105,8 +108,8 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
-	 * @param ids
+	 * 删除元数据
+	 * @param ids 元数据id列表
 	 * @return
 	 */
 	public boolean deleteIds(List<Integer> ids){
@@ -127,12 +130,12 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
-	 * @param startIndex
-	 * @param itemNum
+	 * 根据分类查询元数据
+	 * @param startIndex 开始索引
+	 * @param itemNum	item个数
 	 * @return
 	 */
-	public List<Message> pullPaginateMsg(int startIndex,int itemNum){
+	private List<Message> pullPaginateMsg(int startIndex,int itemNum){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -150,13 +153,13 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
-	 * @param startIndex
-	 * @param itemNum
-	 * @param sortId
+	 * 分页形式根据分类查询元数据
+	 * @param startIndex 开始索引
+	 * @param itemNum item个数
+	 * @param sortId 1:meta_data 2:approve_data 3:unrelated_data
 	 * @return
 	 */
-	public List<Message> pullPaginateMsgBySort(int startIndex,int itemNum,int sortId){
+	private List<Message> pullPaginateMsgBySort(int startIndex,int itemNum,int sortId){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -174,10 +177,10 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 取得元数据总数
 	 * @return
 	 */
-	public int getMsgCount(){
+	private int getMsgCount(){
 		try {
 			transport.open();
 			return client.getMsgCount();
@@ -194,11 +197,11 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 根据分类查询元数据
 	 * @param sort_id
 	 * @return
 	 */
-	public int getMsgCountBySort(int sort_id){
+	private int getMsgCountBySort(int sort_id){
 		try {
 			transport.open();
 			return client.getMsgCountBySort(sort_id);
@@ -215,10 +218,10 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 取得索引总数
 	 * @return
 	 */
-	public int getApproveCount(){
+	private int getApproveCount(){
 		try {
 			transport.open();
 			return client.getApproveCount();
@@ -235,12 +238,12 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 分页形式拉取索引数据
 	 * @param startIndex
 	 * @param itemNum
 	 * @return
 	 */
-	public List<Message> pullPaginateApprove(int startIndex,int itemNum){
+	private List<Message> pullPaginateApprove(int startIndex,int itemNum){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -258,7 +261,7 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 将已审核通过的信息推送入索引
 	 * @param list
 	 * @return
 	 */
@@ -279,8 +282,11 @@ public class ThriftClient {
 		return count;
 	}
 	
-	private static int itemNum = 500;
-	
+
+	/**
+	 * 拉取所有索引数据
+	 * @return List<Message>
+	 */
 	public List<Message> getAllSyncApproved(){
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getApproveCount();
@@ -290,6 +296,10 @@ public class ThriftClient {
 		return msgs;
 	}
 	
+	/**
+	 * 拉取所有已通过审核但未同步到索引的元数据
+	 * @return List<Message>
+	 */
 	public List<Message> getAllUnSyncApproved(){
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getMsgCountBySort(Constant.APPROVED);
@@ -299,11 +309,28 @@ public class ThriftClient {
 		return msgs;
 	}
 	
+	/**
+	 * 拉取所有审核判定为无关的元数据
+	 * @return
+	 */
 	public List<Message> getAllUnRelated(){
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getMsgCountBySort(Constant.UNRELATED);
 		for (int i =0;i < msgSum;i = i + itemNum){
 			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.UNRELATED));
+		}
+		return msgs;
+	}
+	
+	/**
+	 * 拉取所有元数据
+	 * @return
+	 */
+	public List<Message> getAllMsg(){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getMsgCount();
+		for (int i =0;i < msgSum;i = i + itemNum){
+			msgs.addAll(pullPaginateMsg(i,itemNum));
 		}
 		return msgs;
 	}
