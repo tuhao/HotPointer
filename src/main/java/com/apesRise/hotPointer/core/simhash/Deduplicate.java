@@ -38,9 +38,9 @@ public class Deduplicate {
 		List<Message> msgs = client.getAllMsg();
 		List<Integer> duplicates = dedup.dedup(dedup.simHashMapInit(),msgs);
 		client.deleteIds(duplicates);
-		for(int id:duplicates){
-			System.out.println("delete " + id);
-		}
+//		for(int id:duplicates){
+//			System.out.println("delete " + id);
+//		}
 		System.out.println(duplicates.size() + " duplicates items deleted");
 	}
 	

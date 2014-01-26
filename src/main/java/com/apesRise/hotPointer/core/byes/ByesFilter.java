@@ -14,7 +14,7 @@ import com.apesRise.hotPointer.util.WordCount;
 
 public class ByesFilter {
 	
-	private static int tokenNum = 7;
+	private static int tokenNum = 3;
 	private static double defaultProp = 0.40;
 	
 	public static double prop(String text){

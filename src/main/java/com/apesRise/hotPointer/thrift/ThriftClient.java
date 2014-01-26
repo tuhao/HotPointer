@@ -18,6 +18,7 @@ import org.apache.thrift.transport.TTransportException;
 import com.apesRise.hotPointer.thrift.push_gen.DataService.Client;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
+import com.apesRise.hotPointer.util.WFile;
 
 public class ThriftClient {
 	
@@ -318,6 +319,13 @@ public class ThriftClient {
 		int msgSum = getMsgCountBySort(Constant.UNRELATED);
 		for (int i =0;i < msgSum;i = i + itemNum){
 //			System.out.println(msgs.size());
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(msgs.size());
 			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.UNRELATED));
 		}
 		return msgs;
@@ -338,8 +346,15 @@ public class ThriftClient {
 	
 	
 	public static void main(String[] args) {
+//		String path = "data_sets/unrelated/";
+		String path = "data_sets/approve/";
 		ThriftClient client = ThriftClient.getInstance();
-		System.out.println(client.getAllUnRelated());
+//		List<Message> unRelated = client.getAllSyncApproved();
+//		for(Message msg:unRelated){
+//			String filename = path + msg.getId() + ".txt";
+//			WFile.wf(filename, msg.getContent(), false);
+//		}
+		System.out.println(client.getApproveCount());
 	}
 	
 	
