@@ -10,13 +10,28 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
-import com.apesRise.hotPointer.thrift.ThriftClient;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
 import com.apesRise.hotPointer.util.ReadAll;
+import com.apesRise.hotPointer.util.ReadByLine;
 import com.apesRise.hotPointer.util.WordCount;
 
 public class KnnModel {
+	
+	private static List<String> properties = new LinkedList<String>();
+	private static List<KNN> metric = new LinkedList<KNN>();
+	
+	static class KNN{
+		int msgId;
+		List<Map<String,Integer>> valueMaps;
+		boolean result = false;
+		
+		public KNN(int msgId,List<Map<String,Integer>> valueMaps,boolean result){
+			this.msgId = msgId;
+			this.valueMaps = valueMaps;
+			this.result = result;
+		}
+	}
 	
 	private static List<Message> approvedMsgs = new LinkedList<Message>();
 	private static List<Message> unApprovedMsgs = new LinkedList<Message>();
@@ -26,6 +41,7 @@ public class KnnModel {
 	}
 	
 	private static void learnFromLocal(){
+		properties = ReadByLine.readByLine(Constant.KNN_PROPERTY_FILE, "utf-8");
 		
 		File unrelated = new File(Constant.UNRELATED_DIR);
 		for(File item :unrelated.listFiles()){
@@ -33,15 +49,35 @@ public class KnnModel {
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			unApprovedMsgs.add(msg);
 		}
-		
 		File approve = new File(Constant.APPROVE_DIR);
 		for(File item :approve.listFiles()){
 			Message msg = new Message();
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			approvedMsgs.add(msg);
 		}
+		initKnnModel(metric,properties,approvedMsgs,true);
+		initKnnModel(metric,properties,unApprovedMsgs,false);
 	}
 	
+	private static void initKnnModel(List<KNN> metric,List<String> properties,List<Message> msgs,boolean result){
+		for(Message msg:msgs){
+			List<Map<String,Integer>> valueMaps = new LinkedList<Map<String,Integer>>();
+			Map<String,Integer> wordCountMap = new HashMap<String,Integer>();
+			WordCount.chineseCharacterWordCount(wordCountMap, msg.getContent());
+			for(String property : properties){
+				Map<String,Integer> valueMap = new HashMap<String,Integer>();
+				if (wordCountMap.get(property) == null){
+					valueMap.put(property,0);
+				}else{
+					//计算值
+					
+					valueMap.put(property,wordCountMap.get(property));
+				}
+				valueMaps.add(valueMap);
+			}
+			metric.add(new KNN(msg.getId(),valueMaps,result));
+		}
+	}
 	
 	
 	
@@ -73,7 +109,7 @@ public class KnnModel {
 	}
 	
 	public static void main(String[] args) {
-		preProcess();
+//		preProcess();
 	}
 
 }
