@@ -58,7 +58,7 @@ public class KnnModel {
 		initKnnModel(metric, properties, approvedMsgs, true);
 	}
 	
-	public void learnFromLocal(){
+	private void learnFromLocal(){
 		List<String> properties = ReadByLine.readByLine(Constant.KNN_PROPERTY_FILE, "utf-8");
 		File unrelated = new File(Constant.UNRELATED_DIR);
 		for(File item :unrelated.listFiles()){

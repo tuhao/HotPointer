@@ -32,7 +32,7 @@ public class ThriftClient {
 	
 	private Client client = null;
 	private TTransport transport = null;
-	private static int itemNum = 200;
+	private static int itemNum = 300;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -43,7 +43,7 @@ public class ThriftClient {
 			String host = properties.getProperty("weixin.host");
 			String port = properties.getProperty("weixin.port");
 			
-			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),3000),50 * 1024 * 1024);
+			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),10000),50 * 1024 * 1024);
 			TProtocol protocol = new TBinaryProtocol(transport);
 			Client.Factory factory = new Client.Factory();
 			client = factory.getClient(protocol);
@@ -113,11 +113,33 @@ public class ThriftClient {
 	 * @param ids 元数据id列表
 	 * @return
 	 */
-	public boolean deleteIds(List<Integer> ids){
+	public boolean deleteMeta(List<Integer> ids){
+		   if(ids.size() == 0) return true;
 			try {
 				transport.open();
-				System.out.println(client.deleteMsgs(ids));
-				return true;
+				return client.deleteMeta(ids);
+			} catch (TTransportException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally{
+				transport.close();
+			}
+			return false;
+	}
+	
+	/**
+	 * 
+	 * @param ids
+	 * @return
+	 */
+	public boolean deleteMsgs(List<Integer> ids){
+		   if(ids.size() == 0) return true;
+			try {
+				transport.open();
+				return client.deleteMsgs(ids);
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -357,9 +379,10 @@ public class ThriftClient {
 	}
 	
 	public boolean msgSortMark(List<Integer> ids,int sortId){
+		if (ids.size() == 0) return true;
 		try {
 			transport.open();
-			return (client.msgSortMark(ids, sortId));
+			return client.msgSortMark(ids, sortId);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

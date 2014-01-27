@@ -37,8 +37,19 @@ public class Deduplicate {
 		Deduplicate dedup = new Deduplicate();
 		List<Message> msgs = client.getAllMsg();
 		List<Integer> duplicates = dedup.dedup(dedup.simHashMapInit(),msgs);
-		client.deleteIds(duplicates);
-		System.out.println(duplicates.size() + " duplicates items deleted");
+		if(client.deleteMeta(duplicates)){
+			System.out.println(duplicates.size() + " duplicates messages deleted from approve_metadata");
+		}else{
+			System.out.println("duplicates messages delete trasaction fail..");
+		}
+	}
+	
+	private void dedupMessageDB(){
+		Deduplicate dedup = new Deduplicate();
+		List<Message> msgs = client.getAllSyncApproved();
+		List<Integer> duplicates = dedup.dedup(dedup.simHashMapInit(),msgs);
+		client.deleteMsgs(duplicates);
+		System.out.println(duplicates.size() + " duplicates items deleted from signature_message");
 	}
 	
 	/**
@@ -58,19 +69,23 @@ public class Deduplicate {
 			cache.add(msgId);
 		}
 		List<Message> pushApproveList = new LinkedList<Message>();
-		for(Message msg : msgs){
+		for(Message msg : newMsgs){
 			if(cache.add(msg.getId())){
 				pushApproveList.add(msg);
 			}
 		}
-		client.pushApprove(pushApproveList);
+		int count = client.pushApprove(pushApproveList);
 		for(Message msg:pushApproveList){
 			duplicates.add(msg.getId());
 			System.out.println("push approved message:" + msg.getContent());
 		}
-		System.out.println(pushApproveList.size() + " approved messages pushed");
-		client.deleteIds(duplicates);
-		System.out.println(duplicates.size() + " duplicates messages deleted");
+		System.out.println(pushApproveList.size() + " new Mmessages ,pushed " + count);
+		if(client.deleteMeta(duplicates)){
+			System.out.println(duplicates.size() + " duplicates messages deleted from approve_metadata");
+		}else{
+			System.out.println("duplicates messages delete trasaction fail..");
+		}
+		
 	}
 	
 	/**
@@ -97,6 +112,7 @@ public class Deduplicate {
 				for(int i =0;i < 64;i=i+16){
 					subs.add(simHash.getStrSimHash().substring(i, i + 16));
 				}
+				boolean similar = false;
 				for(int i = 0;i < SimHash.DIVIDED;i++){
 					String sub = subs.get(i);
 					Map<String, List<SimHash>> LinkedMap = simHashMap.get(i);
@@ -108,10 +124,12 @@ public class Deduplicate {
 						for(SimHash item:LinkedMap.get(sub)){
 							if(simHash.hammingDistance(item) <= SimHash.DISTANCE){
 								dupicateIds.add(simHash.getMsgId());
+								similar = true;
 								break;
 							}
 						}
 						LinkedMap.get(sub).add(simHash);
+						if(similar) break;
 					}
 				}
 			} catch (IOException e) {

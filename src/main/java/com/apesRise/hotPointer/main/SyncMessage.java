@@ -23,14 +23,16 @@ public class SyncMessage {
 		List<Integer> ids = new LinkedList<Integer>();
 		KnnModel knnModel = new KnnModel();
 		for(Message msg : newMsgs){
-			ids.add(msg.getId());
 			if(knnModel.judge(msg.getContent())){
 				approvedMsgs.add(msg);
+			}else{
+				ids.add(msg.getId());
 			}
 		}
 		//同步经过审批的数据
+		approvedMsgs.addAll(client.getAllUnSyncApproved());
 		dedup.syncApproved(approvedMsgs);
-		client.msgSortMark(ids, Constant.UNRELATED);
+		System.out.println("sortMark :" + ids.size() + " items => " + client.msgSortMark(ids, Constant.UNRELATED));
 		
 	}
 
