@@ -16,7 +16,7 @@ public class SyncMessage {
 	public static void main(String[] args) {
 		//对元数据表中数据去重
 		Deduplicate dedup = new Deduplicate();
-		dedup.dedupMetaDB();
+//		dedup.dedupMetaDB();
 		
 		List<Message> newMsgs = client.getAllMetaMsg();
 		List<Message> approvedMsgs = new LinkedList<Message>();

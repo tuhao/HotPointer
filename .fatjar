@@ -1,12 +1,12 @@
 #Fat Jar Configuration File
-#Tue Jan 07 22:58:03 GMT 2014
+#Mon Jan 27 23:08:01 CST 2014
 onejar.license.required=true
 manifest.classpath=
 manifest.removesigners=true
 onejar.checkbox=false
-jarname=/usr/local/project/GoWrok/src/github.com/violetgo/HotPointer/HotPointer.jar
+jarname=/root/HotPointer.jar
 manifest.mergeall=true
-manifest.mainclass=com.apesRise.hotPointer.main.Main
+manifest.mainclass=com.apesRise.hotPointer.main.SyncMessage
 manifest.file=<createnew>
 jarname.isextern=true
 onejar.expand=
