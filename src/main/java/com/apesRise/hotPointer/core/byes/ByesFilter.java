@@ -14,10 +14,12 @@ import com.apesRise.hotPointer.util.WordCount;
 
 public class ByesFilter {
 	
-	private static int tokenNum = 3;
-	private static double defaultProp = 0.40;
+	private int tokenNum = 5;
+	private double defaultProp = 0.40;
 	
-	public static double prop(String text){
+	private static ByesLearn byes = new ByesLearn();
+	
+	public double prop(String text){
 		BigDecimal numerator = new BigDecimal(1);
 		BigDecimal temp = new BigDecimal(1);
 		for(String token : getTokens(text)){
@@ -30,14 +32,14 @@ public class ByesFilter {
 		
 	}
 	
-	private static double tokenProp(String token){
-		if(ByesLearn.propMap.get(token) == null){
+	private double tokenProp(String token){
+		if(byes.propMap.get(token) == null){
 			return defaultProp;
 		}
-		return ByesLearn.propMap.get(token);
+		return byes.propMap.get(token);
 	}
 	
-	private static List<String> getTokens(String text){
+	private List<String> getTokens(String text){
 		List<String> tokens = new LinkedList<String>();
 		Map<String,Integer> wordCountMap = new HashMap<String,Integer>();
 		WordCount.chineseCharacterWordCount(wordCountMap, text);

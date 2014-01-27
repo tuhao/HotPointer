@@ -8,8 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-
+import com.apesRise.hotPointer.thrift.ThriftClient;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
 import com.apesRise.hotPointer.util.ReadAll;
@@ -18,8 +17,9 @@ import com.apesRise.hotPointer.util.WordCount;
 
 public class KnnModel {
 	
-	private static List<String> properties = new LinkedList<String>();
-	public static List<KNN> metric = new LinkedList<KNN>();
+	public boolean DEBUG = false;
+	private ThriftClient client = ThriftClient.getInstance();
+	private List<KNN> metric = new LinkedList<KNN>();
 	
 	private static int k = 7;
 	
@@ -36,16 +36,30 @@ public class KnnModel {
 		}
 	}
 	
-	private static List<Message> approvedMsgs = new LinkedList<Message>();
-	private static List<Message> unApprovedMsgs = new LinkedList<Message>();
+	private List<Message> approvedMsgs = new LinkedList<Message>();
+	private List<Message> unApprovedMsgs = new LinkedList<Message>();
 	
-	static {
+	public KnnModel() {
 		learnFromLocal();
 	}
 	
-	private static void learnFromLocal(){
-		properties = ReadByLine.readByLine(Constant.KNN_PROPERTY_FILE, "utf-8");
+	public boolean judge(String content){
+		Map<KNN,Integer> distanceMap = new HashMap<KNN,Integer>();
+		distanceMap(distanceMap,content,metric);
+		return findKNeibor(distanceMap);
+	}
+	
+	private void learnFromRemote(){
+		List<String> properties = ReadByLine.readByLine(Constant.KNN_PROPERTY_FILE, "utf-8");
+		unApprovedMsgs = client.getAllUnRelated();
+		approvedMsgs = client.getAllSyncApproved();
 		
+		initKnnModel(metric, properties, unApprovedMsgs, false);
+		initKnnModel(metric, properties, approvedMsgs, true);
+	}
+	
+	public void learnFromLocal(){
+		List<String> properties = ReadByLine.readByLine(Constant.KNN_PROPERTY_FILE, "utf-8");
 		File unrelated = new File(Constant.UNRELATED_DIR);
 		for(File item :unrelated.listFiles()){
 			Message msg = new Message();
@@ -62,13 +76,7 @@ public class KnnModel {
 		initKnnModel(metric,properties,unApprovedMsgs,false);
 	}
 	
-	public static boolean judge(String content){
-		Map<KNN,Integer> distanceMap = new HashMap<KNN,Integer>();
-		distanceMap(distanceMap,content,metric);
-		return findKNeibor(distanceMap);
-	}
-	
-	private static void initKnnModel(List<KNN> metric,List<String> properties,List<Message> msgs,boolean result){
+	private void initKnnModel(List<KNN> metric,List<String> properties,List<Message> msgs,boolean result){
 		for(Message msg:msgs){
 			List<Map<String,Integer>> valueMaps = new LinkedList<Map<String,Integer>>();
 			Map<String,Integer> wordCountMap = new HashMap<String,Integer>();
@@ -87,7 +95,7 @@ public class KnnModel {
 	}
 	
 	
-	private static void distanceMap(Map<KNN,Integer> distanceMap,String content,List<KNN> metric){
+	private void distanceMap(Map<KNN,Integer> distanceMap,String content,List<KNN> metric){
 		Map<String,Integer> wordCountMap = new HashMap<String,Integer>();
 		WordCount.chineseCharacterWordCount(wordCountMap, content);
 		for(KNN knn:metric){
@@ -107,7 +115,7 @@ public class KnnModel {
 		
 	}
 	
-	private static boolean findKNeibor(Map<KNN,Integer> distanceMap){
+	private boolean findKNeibor(Map<KNN,Integer> distanceMap){
 		Map<Integer,List<KNN>> sortMap = new HashMap<Integer,List<KNN>>();
 		for(Iterator<Entry<KNN,Integer>> it = distanceMap.entrySet().iterator();it.hasNext();){
 			Entry<KNN,Integer> entry = (Entry<KNN,Integer>)it.next();
@@ -133,7 +141,10 @@ public class KnnModel {
 				}else{
 					wrong ++;
 				}
-//				System.out.println(counts[i] + " : " + knn.result + " " +  knn.content);
+				if(DEBUG){
+					System.out.println(counts[i] + " : " + knn.result + " " +  knn.content);
+				}
+
 				if (right + wrong >= k) break;
 			}
 			if(right + wrong >= k) break;
@@ -141,36 +152,5 @@ public class KnnModel {
 		return right > wrong ? true : false;
 	}
 	
-	
-	private static void preProcess(){
-		Map<String,Integer> wordCount = new HashMap<String,Integer>();
-//		List<Message> messages = ThriftClient.getInstance().getAllUnRelated();
-		for(Message msg : approvedMsgs){
-			WordCount.chineseCharacterWordCount(wordCount, msg.getContent());
-		}
-		Map<Integer,List<String>> sortMap = new HashMap<Integer,List<String>>();
-		for(Iterator it = wordCount.entrySet().iterator();it.hasNext();){
-			Entry entry = (Entry)it.next();
-			String word = (String)entry.getKey();
-			int count = (Integer)entry.getValue();
-			if(sortMap.get(count) != null){
-				sortMap.get(count).add(word);
-			}else{
-				List<String> list = new LinkedList<String>();
-				list.add(word);
-				sortMap.put(count, list);
-			}
-		}
-		Integer[] counts = new Integer[sortMap.size()];
-		sortMap.keySet().toArray(counts);
-		Arrays.sort(counts);
-		for(int i = counts.length - 1;i >=0;i --){
-			System.out.println(counts[i] + " : " + sortMap.get(counts[i]));
-		}
-	}
-	
-	public static void main(String[] args) {
-//		preProcess();
-	}
 
 }

@@ -32,7 +32,7 @@ public class ThriftClient {
 	
 	private Client client = null;
 	private TTransport transport = null;
-	private static int itemNum = 2;
+	private static int itemNum = 200;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -337,23 +337,39 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 得到所有未审批新数据
 	 * @return
 	 */
 	public List<Message> getAllMetaMsg(){
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getMsgCountBySort(Constant.META);
 		for (int i =0;i < msgSum;i = i + itemNum){
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println(msgs.size());
+//			try {
+//				Thread.sleep(500);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			System.out.println(msgs.size());
 			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.META));
 		}
 		return msgs;
+	}
+	
+	public boolean msgSortMark(List<Integer> ids,int sortId){
+		try {
+			transport.open();
+			return (client.msgSortMark(ids, sortId));
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return false;
 	}
 	
 	

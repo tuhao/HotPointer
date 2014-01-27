@@ -20,13 +20,13 @@ public class ByesLearn {
 	
 	private static ThriftClient client = ThriftClient.getInstance();
 	
-	public static Map<String,Double> propMap = new HashMap<String,Double>();
+	public Map<String,Double> propMap = new HashMap<String,Double>();
 	
-	static{
+	public ByesLearn(){
 		learnFromLocal();
 	}
 	
-	private static void learnFromRemote(){
+	private void learnFromRemote(){
 		List<Message> unApprovedMsgs = client.getAllUnRelated();
 		Map<String,Double> primaryMap = wordFrequece(wordCount(unApprovedMsgs),1);
 		
@@ -36,7 +36,7 @@ public class ByesLearn {
 		propMap = wordProp(primaryMap,aidMap);
 	}
 	
-	private static void learnFromLocal(){
+	private void learnFromLocal(){
 		List<Message> unApprovedMsgs = new LinkedList<Message>();
 		File unrelated = new File(Constant.UNRELATED_DIR);
 		for(File item :unrelated.listFiles()){
@@ -62,7 +62,7 @@ public class ByesLearn {
 	 * @param messages
 	 * @return
 	 */
-	private static Map<String,Integer> wordCount(List<Message> messages){
+	private Map<String,Integer> wordCount(List<Message> messages){
 		Map<String,Integer> wordCountMap = new HashMap<String,Integer>();
 		for(Message msg : messages){
 			WordCount.chineseCharacterWordCount(wordCountMap, msg.getContent());
@@ -76,7 +76,7 @@ public class ByesLearn {
 	 * @param multy
 	 * @return
 	 */
-	private static Map<String,Double> wordFrequece(Map<String,Integer> wordCountMap,int multy){
+	private Map<String,Double> wordFrequece(Map<String,Integer> wordCountMap,int multy){
 		Map<String,Double> wordFrequenceMap = new HashMap<String, Double>();
 		BigDecimal clusterSum = new BigDecimal(wordCountMap.size());
 		for(Iterator<Entry<String, Integer>> it = wordCountMap.entrySet().iterator();it.hasNext();){
@@ -96,7 +96,7 @@ public class ByesLearn {
 	 * @param aidMap
 	 * @return
 	 */
-	private static Map<String,Double> wordProp(Map<String,Double> primaryMap,Map<String,Double> aidMap){
+	private Map<String,Double> wordProp(Map<String,Double> primaryMap,Map<String,Double> aidMap){
 		Map<String,Double> propMap = new HashMap<String,Double>();
 		
 		for(Iterator<Entry<String, Double>> it = aidMap.entrySet().iterator();it.hasNext();){

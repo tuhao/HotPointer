@@ -38,25 +38,20 @@ public class Deduplicate {
 		List<Message> msgs = client.getAllMsg();
 		List<Integer> duplicates = dedup.dedup(dedup.simHashMapInit(),msgs);
 		client.deleteIds(duplicates);
-//		for(int id:duplicates){
-//			System.out.println("delete " + id);
-//		}
 		System.out.println(duplicates.size() + " duplicates items deleted");
 	}
-	
 	
 	/**
 	 * 将审核通过的信息更新到信息查询表
 	 */
-	public void syncApproved(){
+	public void syncApproved(List<Message> newMsgs){
 		Deduplicate dedup = new Deduplicate();
 		List<Message> msgs = client.getAllSyncApproved();
 		
 		Map<Integer, Map<String, List<SimHash>>> simHashMap = dedup.simHashMapInit();
 		dedup.dedup(simHashMap,msgs);
-		
-		msgs = client.getAllUnSyncApproved();
-		List<Integer> duplicates = dedup.dedup(simHashMap, msgs);
+
+		List<Integer> duplicates = dedup.dedup(simHashMap, newMsgs);
 		
 		Set<Integer> cache = new HashSet<Integer>();
 		for(int msgId : duplicates){
@@ -129,14 +124,5 @@ public class Deduplicate {
 		return dupicateIds;
 	}
 	
-
-	public static void main(String[] args) {
-		Deduplicate dedup = new Deduplicate();
-		dedup.dedupMetaDB();
-		
-		dedup = new Deduplicate();
-		dedup.syncApproved();
-		
-	}
 
 }
