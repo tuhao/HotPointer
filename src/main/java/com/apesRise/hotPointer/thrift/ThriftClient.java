@@ -332,7 +332,7 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 拉取所有元数据
+	 * 拉取所有数据
 	 * @return
 	 */
 	public List<Message> getAllMsg(){
@@ -340,6 +340,19 @@ public class ThriftClient {
 		int msgSum = getMsgCount();
 		for (int i =0;i < msgSum;i = i + itemNum){
 			msgs.addAll(pullPaginateMsg(i,itemNum));
+		}
+		return msgs;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<Message> getAllMetaMsg(){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getMsgCountBySort(Constant.META);
+		for (int i =0;i < msgSum;i = i + itemNum){
+			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.META));
 		}
 		return msgs;
 	}
