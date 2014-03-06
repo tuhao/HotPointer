@@ -1,8 +1,13 @@
 package com.apesRise.hotPointer.main;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.apesRise.hotPointer.core.knn.KnnModel;
 import com.apesRise.hotPointer.thrift.ThriftClient;
@@ -10,20 +15,18 @@ import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
 import com.apesRise.hotPointer.util.ReadAll;
 import com.apesRise.hotPointer.util.WFile;
+import com.apesRise.hotPointer.util.WordCount;
 
 public class KNNTest {
 	
 	static ThriftClient client  = ThriftClient.getInstance();
 	
 	public static void main(String[] args) {
-		String content = "哈哈，菜菜搜罗的超级详细的教学贴，垂涎欲滴的小蛋糕，" +
-				"你完全可以轻松驾驭啊！转发=>【手把手教你平底锅小蛋糕】不要以为" +
-				"糕点那都是大师级才能驾驭得了的，跟着步骤做，你一样可以做出让人垂" +
-				"涎欲滴的小蛋糕哟，而且不用烤箱做蛋糕哦，还不快快学起来! [din推撞]" +
-				" | photo by DIY达人http://ww1.sinaimg.cn/bmiddle/80891114gw1ecart676xqj20c80wajv0.jpg";
+		String content = "【金针菇牛肉卷】材料：肥牛肉十五片，金针菇一把。做法：用生抽，蒜末，耗油，蜂蜜，水，混在一起，腌牛肉大约20分钟。烤箱预热375华氏。将牛肉包在金针菇外面，在烤箱烤10分钟。拿出后可直接食用，也可洒一点鳗鱼汁，或者用一勺酱油，一勺蜂蜜，一勺水，一勺汤，混和烧开后勾芡做汁。#美食#http://app.qpic.cn/mblogpic/5a98254b9565e3425512/460.jpg";
 		KnnModel knnModel = new KnnModel();
 		knnModel.DEBUG = true;
 		System.out.println(knnModel.judge(content));
+//		wordCount();
 	}
 	
 	
@@ -90,11 +93,10 @@ public class KNNTest {
 	*/
 	
 
-	/*
-	private static void preProcess(){
+	private static void wordCount(){
 		Map<String,Integer> wordCount = new HashMap<String,Integer>();
-//		List<Message> messages = ThriftClient.getInstance().getAllUnRelated();
-		for(Message msg : approvedMsgs){
+		List<Message> messages = ThriftClient.getInstance().getAllSyncApproved();
+		for(Message msg : messages){
 			WordCount.chineseCharacterWordCount(wordCount, msg.getContent());
 		}
 		Map<Integer,List<String>> sortMap = new HashMap<Integer,List<String>>();
@@ -117,6 +119,5 @@ public class KNNTest {
 			System.out.println(counts[i] + " : " + sortMap.get(counts[i]));
 		}
 	}
-	*/
 
 }

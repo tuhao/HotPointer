@@ -74,11 +74,11 @@ public class Deduplicate {
 				pushApproveList.add(msg);
 			}
 		}
-		int count = client.pushApprove(pushApproveList);
 		for(Message msg:pushApproveList){
 			duplicates.add(msg.getId());
 			System.out.println("push approved message:" + msg.getContent());
 		}
+		int count = client.pushApprove(pushApproveList);
 		System.out.println(pushApproveList.size() + " new Mmessages ,pushed " + count);
 		if(client.deleteMeta(duplicates)){
 			System.out.println(duplicates.size() + " duplicates messages deleted from approve_metadata");
