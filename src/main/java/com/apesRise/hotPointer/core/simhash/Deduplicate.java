@@ -31,7 +31,7 @@ public class Deduplicate {
 	}
 	
 	/**
-	 * 信息采集表去重
+	 * 元数据表去重
 	 */
 	public void dedupMetaDB(){
 		Deduplicate dedup = new Deduplicate();
@@ -44,13 +44,17 @@ public class Deduplicate {
 		}
 	}
 	
-	private void dedupMessageDB(){
+	/**
+	 * 推荐信息表去重
+	 
+	public void dedupMessageDB(){
 		Deduplicate dedup = new Deduplicate();
 		List<Message> msgs = client.getAllSyncApproved();
 		List<Integer> duplicates = dedup.dedup(dedup.simHashMapInit(),msgs);
 		client.deleteMsgs(duplicates);
 		System.out.println(duplicates.size() + " duplicates items deleted from signature_message");
 	}
+	*/
 	
 	/**
 	 * 将审核通过的信息更新到信息查询表
@@ -94,7 +98,7 @@ public class Deduplicate {
 	 * @param msgs
 	 * @return
 	 */
-	public List<Integer> dedup(Map<Integer, Map<String, List<SimHash>>> simHashMap,List<Message> msgs){
+	private List<Integer> dedup(Map<Integer, Map<String, List<SimHash>>> simHashMap,List<Message> msgs){
 		List<Integer> dupicateIds = new LinkedList<Integer>();
 		for (Message msg:msgs){
 			StringReader line = new StringReader(msg.getContent());

@@ -41,11 +41,9 @@ public class KnnModel {
 		}
 	}
 
-	private List<Message> approvedMsgs = new LinkedList<Message>();
-	private List<Message> unApprovedMsgs = new LinkedList<Message>();
 
-	public KnnModel() {
-		learnFromRemote();
+	public KnnModel(List<Message> approvedMsgs,List<Message> unApprovedMsgs,List<String> properties) {
+		learnFromRemote(approvedMsgs,unApprovedMsgs,properties);
 	}
 
 	public boolean judge(String content) {
@@ -61,34 +59,11 @@ public class KnnModel {
 		return findKNeibor(data);
 	}
 
-	private void learnFromRemote() {
-		List<String> properties = ReadByLine.readByLine(
-				Constant.KNN_PROPERTY_FILE, "utf-8");
-		unApprovedMsgs = client.getAllUnRelated();
-		approvedMsgs = client.getAllSyncApproved();
-
+	private void learnFromRemote(List<Message> approvedMsgs,List<Message> unApprovedMsgs,List<String> properties) {
 		initKnnModel(metric, properties, unApprovedMsgs, false);
 		initKnnModel(metric, properties, approvedMsgs, true);
 	}
 
-	private void learnFromLocal() {
-		List<String> properties = ReadByLine.readByLine(
-				Constant.KNN_PROPERTY_FILE, "utf-8");
-		File unrelated = new File(Constant.UNRELATED_DIR);
-		for (File item : unrelated.listFiles()) {
-			Message msg = new Message();
-			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
-			unApprovedMsgs.add(msg);
-		}
-		File approve = new File(Constant.APPROVE_DIR);
-		for (File item : approve.listFiles()) {
-			Message msg = new Message();
-			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
-			approvedMsgs.add(msg);
-		}
-		initKnnModel(metric, properties, approvedMsgs, true);
-		initKnnModel(metric, properties, unApprovedMsgs, false);
-	}
 
 	private void initKnnModel(List<KNN> metric, List<String> properties,
 			List<Message> msgs, boolean result) {
@@ -147,10 +122,33 @@ public class KnnModel {
 						+ knn.content);
 			}
 		}
-		System.out.println(System.currentTimeMillis() - start);
+//		System.out.println(System.currentTimeMillis() - start);
 		return right > wrong ? true : false;
 	}
+	
 
+	/*
+	private void learnFromLocal() {
+		List<String> properties = ReadByLine.readByLine(
+				Constant.KNN_PROPERTY_FILE, "utf-8");
+		File unrelated = new File(Constant.UNRELATED_DIR);
+		for (File item : unrelated.listFiles()) {
+			Message msg = new Message();
+			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
+			unApprovedMsgs.add(msg);
+		}
+		File approve = new File(Constant.APPROVE_DIR);
+		for (File item : approve.listFiles()) {
+			Message msg = new Message();
+			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
+			approvedMsgs.add(msg);
+		}
+		initKnnModel(metric, properties, approvedMsgs, true);
+		initKnnModel(metric, properties, unApprovedMsgs, false);
+	}
+	*/
+
+	/*
 	private void distanceMap(Map<KNN, Integer> distanceMap, String content,
 			List<KNN> metric) {
 		Map<String, Integer> wordCountMap = new HashMap<String, Integer>();
@@ -213,5 +211,7 @@ public class KnnModel {
 		}
 		return right > wrong ? true : false;
 	}
+	
+	*/
 
 }

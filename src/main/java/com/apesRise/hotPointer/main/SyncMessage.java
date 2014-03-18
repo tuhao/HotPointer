@@ -8,32 +8,63 @@ import com.apesRise.hotPointer.core.simhash.Deduplicate;
 import com.apesRise.hotPointer.thrift.ThriftClient;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
+import com.apesRise.hotPointer.util.ReadByLine;
 
 public class SyncMessage {
 	
 	private static ThriftClient client = ThriftClient.getInstance();
 
 	public static void main(String[] args) {
-		//对元数据表中数据去重
+		
+		List<Integer> unPassedIds = new LinkedList<Integer>();
+		unPassedIds.addAll(approveMsg());
+		unPassedIds.addAll(deliciousMsg());
+		markUnpassed(unPassedIds);
+	}
+	
+	/**
+	 * 对新进元数据进行分类，筛选出推荐数据入库
+	 * @return 未通过的id列表
+	 */
+	private static List<Integer> approveMsg(){
 		Deduplicate dedup = new Deduplicate();
-//		dedup.dedupMetaDB();
-//		if(true)return;
-		List<Message> newMsgs = client.getAllMetaMsg();
-		List<Message> approvedMsgs = new LinkedList<Message>();
-		List<Integer> ids = new LinkedList<Integer>();
-		KnnModel knnModel = new KnnModel();
+		List<Message> newMsgs = client.getAllMsgBySort(Constant.META, 0);
+		List<Message> approveResult = new LinkedList<Message>();
+		List<Message> approvedMsgs = client.getAllSyncApproved();
+		List<Message> unApprovedMsgs = client.getAllMsgBySort(Constant.UNRELATED, 0);
+		List<String> properties = ReadByLine.readByLine(Constant.KNN_PROPERTY_FILE, "utf-8");
+		KnnModel knnModel = new KnnModel(approvedMsgs,unApprovedMsgs,properties);
+		List<Integer> unPassedIds = new LinkedList<Integer>();
 		for(Message msg : newMsgs){
 			if(knnModel.judge(msg.getContent())){
-				approvedMsgs.add(msg);
+				approveResult.add(msg);
 			}else{
-				ids.add(msg.getId());
+				unPassedIds.add(msg.getId());
 			}
 		}
 		//同步经过审批的数据
-		approvedMsgs.addAll(client.getAllUnSyncApproved());
-		dedup.syncApproved(approvedMsgs);
-		System.out.println("sortMark :" + ids.size() + " items => " + client.msgSortMark(ids, Constant.UNRELATED));
-		
+		approveResult.addAll(client.getAllMsgBySort(Constant.APPROVED, 0));
+		dedup.syncApproved(approveResult);
+		return unPassedIds;
 	}
+	
+	private static List<Integer> deliciousMsg(){
+		List<Integer> unPassedIds = new LinkedList<Integer>();
+		return unPassedIds;
+	}
+	
+	private static void markUnpassed(List<Integer> unPassedIds){
+		System.out.println("sortMark :" + unPassedIds.size() + " items => " + client.msgSortMark(unPassedIds, Constant.UNRELATED));
+	}
+	
+	/**
+	 * 对元数据表数据去重
+	 */
+	private static void dedupMetaDB(){
+		Deduplicate dedup = new Deduplicate();
+		dedup.dedupMetaDB();
+	}
+	
+	
 
 }

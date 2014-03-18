@@ -8,6 +8,8 @@ public class Constant {
 	
 	public final static int UNRELATED = 3;
 	
+	public final static int DELICIOUS = 4;
+	
 	public final static String UNRELATED_DIR = "train/unrelated/";
 	
 	public final static String APPROVE_DIR = "train/approve/";

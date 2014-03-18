@@ -18,7 +18,6 @@ import org.apache.thrift.transport.TTransportException;
 import com.apesRise.hotPointer.thrift.push_gen.DataService.Client;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
-import com.apesRise.hotPointer.util.WFile;
 
 public class ThriftClient {
 	
@@ -32,7 +31,7 @@ public class ThriftClient {
 	
 	private Client client = null;
 	private TTransport transport = null;
-	private static int itemNum = 300;
+	private static int itemNum = 500;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -66,36 +65,65 @@ public class ThriftClient {
 		}
 	}
 	
-	@Deprecated
-	private List<Message> pullMsg(int size){
-		List<Message> result = new LinkedList<Message>();
-		try {
-			transport.open();
-			result = client.pullMsg(size);
-		} catch (TTransportException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally{
-			transport.close();
-		}
-		return result;
-	}
-	
 	/**
-	 * 
-	 * @param size
-	 * @param sortId 1:meta_data 2:approve_data 3:unrelated_data
+	 * 拉取元数据表中所有数据
 	 * @return
 	 */
-	@Deprecated
-	private List<Message> pullBySort(int size,int sortId){
-		List<Message> result = new LinkedList<Message>();
+	public List<Message> getAllMsg(){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getMsgCount();
+		for (int i =0;i < msgSum;i = i + itemNum){
+			msgs.addAll(pullPaginateMsg(i,itemNum));
+		}
+		return msgs;
+	}
+	
+	/**
+	 * 拉取推荐表中所有数据
+	 * @return List<Message>
+	 */
+	public List<Message> getAllSyncApproved(){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getApproveCount();
+		for (int i =0;i < msgSum;i = i + itemNum){
+			msgs.addAll(pullPaginateApprove(i,itemNum));
+		}
+		return msgs;
+	}
+
+	/**
+	 * 根据分类拉取元数据表中信息
+	 * @param sortId 类型ID
+	 * @param count  取数据总数限制 (0为不限制)
+	 * @return
+	 */
+	public List<Message> getAllMsgBySort(int sortId,int count){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getMsgCountBySort(sortId);
+		if(count > 0){
+			for (int i =0;i < msgSum && i <= count;i = i + itemNum){
+				msgs.addAll(pullPaginateMsgBySort(i,itemNum,sortId));
+			}
+		}else{
+			for (int i =0;i < msgSum;i = i + itemNum){
+				msgs.addAll(pullPaginateMsgBySort(i,itemNum,sortId));
+			}
+		}
+		return msgs;
+	}
+	
+	
+	/**
+	 * 标记数据类型
+	 * @param ids
+	 * @param sortId
+	 * @return
+	 */
+	public boolean msgSortMark(List<Integer> ids,int sortId){
+		if (ids.size() == 0) return true;
 		try {
 			transport.open();
-			result = client.pullMsgBySort(size,sortId);
+			return client.msgSortMark(ids, sortId);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -105,11 +133,11 @@ public class ThriftClient {
 		} finally{
 			transport.close();
 		}
-		return result;
+		return false;
 	}
 	
 	/**
-	 * 删除元数据
+	 * 删除元数据表中数据
 	 * @param ids 元数据id列表
 	 * @return
 	 */
@@ -131,7 +159,7 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 
+	 * 删除推荐表中数据
 	 * @param ids
 	 * @return
 	 */
@@ -152,8 +180,33 @@ public class ThriftClient {
 			return false;
 	}
 	
+	
+	
 	/**
-	 * 根据分类查询元数据
+	 * 将已审核通过的信息推送入推荐表
+	 * @param list
+	 * @return
+	 */
+	public int pushApprove(List<Message> list){
+		int count = 0;
+		try {
+			transport.open();
+			count = client.pushApprove(list);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return count;
+	}
+	
+	
+	/**
+	 * 分页拉取元数据表中数据
 	 * @param startIndex 开始索引
 	 * @param itemNum	item个数
 	 * @return
@@ -176,10 +229,10 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 分页形式根据分类查询元数据
+	 * 根据分类，分页拉取元数据表中数据
 	 * @param startIndex 开始索引
 	 * @param itemNum item个数
-	 * @param sortId 1:meta_data 2:approve_data 3:unrelated_data
+	 * @param sortId 1:meta_data 2:approve_data 3:unrelated_data 4:delicious_data
 	 * @return
 	 */
 	private List<Message> pullPaginateMsgBySort(int startIndex,int itemNum,int sortId){
@@ -200,7 +253,7 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 取得元数据总数
+	 * 取得元数据表中数据总数
 	 * @return
 	 */
 	private int getMsgCount(){
@@ -220,7 +273,7 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 根据分类查询元数据
+	 * 根据分类查询元数据表中分类数据数
 	 * @param sort_id
 	 * @return
 	 */
@@ -241,7 +294,7 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 取得索引总数
+	 * 取得推荐表数据总数
 	 * @return
 	 */
 	private int getApproveCount(){
@@ -261,7 +314,7 @@ public class ThriftClient {
 	}
 	
 	/**
-	 * 分页形式拉取索引数据
+	 * 分页形式拉取推荐表中数据
 	 * @param startIndex
 	 * @param itemNum
 	 * @return
@@ -281,118 +334,6 @@ public class ThriftClient {
 			transport.close();
 		}
 		return result;
-	}
-	
-	/**
-	 * 将已审核通过的信息推送入索引
-	 * @param list
-	 * @return
-	 */
-	public int pushApprove(List<Message> list){
-		int count = 0;
-		try {
-			transport.open();
-			count = client.pushApprove(list);
-		} catch (TTransportException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally{
-			transport.close();
-		}
-		return count;
-	}
-	
-
-	/**
-	 * 拉取所有索引数据
-	 * @return List<Message>
-	 */
-	public List<Message> getAllSyncApproved(){
-		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = getApproveCount();
-		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(pullPaginateApprove(i,itemNum));
-		}
-		return msgs;
-	}
-	
-	/**
-	 * 拉取所有已通过审核但未同步到索引的元数据
-	 * @return List<Message>
-	 */
-	public List<Message> getAllUnSyncApproved(){
-		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = getMsgCountBySort(Constant.APPROVED);
-		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.APPROVED));
-		}
-		return msgs;
-	}
-	
-	/**
-	 * 拉取所有审核判定为无关的元数据
-	 * @return
-	 */
-	public List<Message> getAllUnRelated(){
-		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = getMsgCountBySort(Constant.UNRELATED);
-		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.UNRELATED));
-		}
-		return msgs;
-	}
-	
-	/**
-	 * 拉取所有数据
-	 * @return
-	 */
-	public List<Message> getAllMsg(){
-		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = getMsgCount();
-		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(pullPaginateMsg(i,itemNum));
-		}
-		return msgs;
-	}
-	
-	/**
-	 * 得到所有未审批新数据
-	 * @return
-	 */
-	public List<Message> getAllMetaMsg(){
-		List<Message> msgs = new LinkedList<Message>();
-		int msgSum = getMsgCountBySort(Constant.META);
-		for (int i =0;i < msgSum;i = i + itemNum){
-//			try {
-//				Thread.sleep(500);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			System.out.println(msgs.size());
-			msgs.addAll(pullPaginateMsgBySort(i,itemNum,Constant.META));
-		}
-		return msgs;
-	}
-	
-	public boolean msgSortMark(List<Integer> ids,int sortId){
-		if (ids.size() == 0) return true;
-		try {
-			transport.open();
-			return client.msgSortMark(ids, sortId);
-		} catch (TTransportException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally{
-			transport.close();
-		}
-		return false;
 	}
 	
 	

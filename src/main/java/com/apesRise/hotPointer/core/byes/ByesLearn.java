@@ -27,7 +27,7 @@ public class ByesLearn {
 	}
 	
 	private void learnFromRemote(){
-		List<Message> unApprovedMsgs = client.getAllUnRelated();
+		List<Message> unApprovedMsgs = client.getAllMsgBySort(Constant.UNRELATED, 0);
 		Map<String,Double> primaryMap = wordFrequece(wordCount(unApprovedMsgs),1);
 		
 		List<Message> approvedMsgs = client.getAllSyncApproved();
