@@ -19,16 +19,16 @@ public class SyncMessage {
 		Deduplicate dedup = new Deduplicate();
 		List<Integer> unPassedIds = new LinkedList<Integer>();
 		List<Message> newMsgs = client.getAllMsgBySort(Constant.META, 0);
-		List<Message> unPassed = client.getAllMsgBySort(Constant.UNRELATED, 0);
+		List<Message> unPassed = client.getAllMsgBySort(Constant.UNRELATED, 2000);
 		
 		/**菜谱信息**/
-		final List<Message> approvedMsgs = client.getAllSyncApproved(0);
+		List<Message> approvedMsgs = client.getAllSyncApproved(2000);
 		List<String> approveProperties = ReadByLine.readByLine(Constant.KNN_APPROVE_PROPERTY_FILE, "utf-8");
 		List<Message> approveResult = client.getAllMsgBySort(Constant.APPROVED, 0);  //经过页面审批为菜谱但未同步的数据
 		unPassedIds.addAll(judge(newMsgs, approvedMsgs, unPassed, approveProperties, approveResult));
 		dedup.syncApproved(approveResult,approvedMsgs);
 		
-		/**美食信息**/
+		/**美食信息
 		List<Message> deliciousMsgs = client.getAllDelicious(0);
 		List<String> deliciousProperties = ReadByLine.readByLine(Constant.KNN_DELICIOUS_PROPERTY_FILE, "utf-8");
 		List<Message> deliciousResult = client.getAllMsgBySort(Constant.DELICIOUS, 0); //经过页面审批为美食但未同步的数据
@@ -37,6 +37,7 @@ public class SyncMessage {
 		
 		/**标记未通过审核为无关**/
 		markUnpassed(unPassedIds);
+		
 	}
 	
 	/**

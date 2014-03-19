@@ -75,6 +75,11 @@ public class Deduplicate {
 		}
 	}
 	
+	public static void main(String[] args) {
+		List<Integer> ids = new LinkedList<Integer>();
+		ids.add(2001);
+		client.deleteMeta(ids);
+	}
 	
 	/**
 	 * 
