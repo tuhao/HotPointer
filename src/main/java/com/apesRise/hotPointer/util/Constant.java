@@ -16,6 +16,8 @@ public class Constant {
 	
 	public final static String META_DIR = "train/delta/";
 	
-	public final static String KNN_PROPERTY_FILE = "KnnProperties.txt";
+	public final static String KNN_APPROVE_PROPERTY_FILE = "KnnApproveProperties.txt";
+	
+	public final static String KNN_DELICIOUS_PROPERTY_FILE = "KnnDeliciousProperties.txt";
 
 }

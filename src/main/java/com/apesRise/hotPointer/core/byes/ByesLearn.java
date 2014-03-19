@@ -30,7 +30,7 @@ public class ByesLearn {
 		List<Message> unApprovedMsgs = client.getAllMsgBySort(Constant.UNRELATED, 0);
 		Map<String,Double> primaryMap = wordFrequece(wordCount(unApprovedMsgs),1);
 		
-		List<Message> approvedMsgs = client.getAllSyncApproved();
+		List<Message> approvedMsgs = client.getAllSyncApproved(0);
 		Map<String,Double> aidMap = wordFrequece(wordCount(approvedMsgs),2);
 		
 		propMap = wordProp(primaryMap,aidMap);

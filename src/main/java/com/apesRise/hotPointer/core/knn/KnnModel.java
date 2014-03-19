@@ -42,8 +42,14 @@ public class KnnModel {
 	}
 
 
-	public KnnModel(List<Message> approvedMsgs,List<Message> unApprovedMsgs,List<String> properties) {
-		learnFromRemote(approvedMsgs,unApprovedMsgs,properties);
+	/**
+	 * 
+	 * @param passedMsgs
+	 * @param unPasseddMsgs
+	 * @param properties
+	 */
+	public KnnModel(List<Message> passedMsgs,List<Message> unPasseddMsgs,List<String> properties) {
+		learnFromRemote(passedMsgs,unPasseddMsgs,properties);
 	}
 
 	public boolean judge(String content) {

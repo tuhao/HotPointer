@@ -24,9 +24,9 @@ public class KNNTest {
 
 	public static void main(String[] args) {
 		String content = "【 “舌尖上的新疆”新鲜出炉！】网友：“对于我们这些吃货来说，任何妄图把大盘鸡拉条子羊肉串烤包子馕包肉哈密瓜葡萄干从祖国分离出去成为进口食品的阴谋都是痴心妄想！！”戳图↓↓50款精选新疆美食，哪一样是你的心头最爱？";
-		List<Message> approvedMsgs = client.getAllSyncApproved();
+		List<Message> approvedMsgs = client.getAllSyncApproved(0);
 		List<Message> unApprovedMsgs = client.getAllMsgBySort(Constant.UNRELATED, 0);
-		List<String> properties = ReadByLine.readByLine(Constant.KNN_PROPERTY_FILE, "utf-8");
+		List<String> properties = ReadByLine.readByLine(Constant.KNN_APPROVE_PROPERTY_FILE, "utf-8");
 		KnnModel knnModel = new KnnModel(approvedMsgs,unApprovedMsgs,properties);
 		knnModel.DEBUG = true;
 		System.out.println(knnModel.judge(content));
@@ -45,9 +45,9 @@ public class KNNTest {
 		}
 		String approveDir = "train/delta_approve/";
 		String unrelatedDir = "train/delta_unrelated/";
-		List<Message> approvedMsgs = client.getAllSyncApproved();
+		List<Message> approvedMsgs = client.getAllSyncApproved(0);
 		List<Message> unApprovedMsgs = client.getAllMsgBySort(Constant.UNRELATED, 0);
-		List<String> properties = ReadByLine.readByLine(Constant.KNN_PROPERTY_FILE, "utf-8");
+		List<String> properties = ReadByLine.readByLine(Constant.KNN_APPROVE_PROPERTY_FILE, "utf-8");
 		KnnModel knnModel = new KnnModel(approvedMsgs,unApprovedMsgs,properties);
 		for (Message msg : msgs) {
 			boolean result = knnModel.judge(msg.getContent());
@@ -89,7 +89,7 @@ public class KNNTest {
 
 	private static void wordCount() {
 		Map<String, Integer> wordCount = new HashMap<String, Integer>();
-		List<Message> messages = ThriftClient.getInstance().getAllSyncApproved();
+		List<Message> messages = ThriftClient.getInstance().getAllSyncApproved(0);
 		for (Message msg : messages) {
 			WordCount.chineseCharacterWordCount(wordCount, msg.getContent());
 		}

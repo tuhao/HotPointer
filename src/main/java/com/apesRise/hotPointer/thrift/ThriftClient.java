@@ -3,6 +3,7 @@ package com.apesRise.hotPointer.thrift;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -16,6 +17,7 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
 import com.apesRise.hotPointer.thrift.push_gen.DataService.Client;
+import com.apesRise.hotPointer.thrift.push_gen.DataService.Processor.getDeliciousCount;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
 
@@ -82,15 +84,41 @@ public class ThriftClient {
 	 * 拉取推荐表中所有数据
 	 * @return List<Message>
 	 */
-	public List<Message> getAllSyncApproved(){
+	public List<Message> getAllSyncApproved(int count){
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getApproveCount();
-		for (int i =0;i < msgSum;i = i + itemNum){
-			msgs.addAll(pullPaginateApprove(i,itemNum));
+		if (count > 0){
+			for( int i = 0;i<msgSum && i <= count;i = i + itemNum){
+				msgs.addAll(pullPaginateApprove(i,itemNum));
+			}
+		}else{
+			for (int i =0;i < msgSum;i = i + itemNum){
+				msgs.addAll(pullPaginateApprove(i,itemNum));
+			}
+		}
+		return msgs;
+	}
+	
+	/**
+	 * 拉取美食表中所有数据
+	 * @return
+	 */
+	public List<Message> getAllDelicious(int count){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getDeliciousCount();
+		if(count > 0){
+			for( int i = 0;i < msgSum && i <= count;i = i + itemNum){
+				msgs.addAll(pullPaginateDelicious(i,itemNum));
+			}
+		}else{
+			for(int i =0;i < msgSum;i = i+ itemNum){
+				msgs.addAll(pullPaginateDelicious(i,itemNum));
+			}
 		}
 		return msgs;
 	}
 
+	
 	/**
 	 * 根据分类拉取元数据表中信息
 	 * @param sortId 类型ID
@@ -192,6 +220,28 @@ public class ThriftClient {
 		try {
 			transport.open();
 			count = client.pushApprove(list);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return count;
+	}
+	
+	/**
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public int pushDelicious(List<Message> list){
+		int count = 0;
+		try {
+			transport.open();
+			count = client.pushDelicious(list);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -313,6 +363,30 @@ public class ThriftClient {
 		return 0;
 	}
 	
+
+
+	/**
+	 * 取得美食数据总数
+	 * @return
+	 */
+	private int getDeliciousCount() {
+		// TODO Auto-generated method stub
+		try {
+			transport.open();
+			return client.getDeliciousCount();
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return 0;
+	}
+
+	
 	/**
 	 * 分页形式拉取推荐表中数据
 	 * @param startIndex
@@ -324,6 +398,30 @@ public class ThriftClient {
 		try {
 			transport.open();
 			result = client.pullApprove(startIndex, itemNum);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return result;
+	}
+	
+	/**
+	 * 分页形式拉取美食表中数据
+	 * @param startIndex
+	 * @param itemNum
+	 * @return
+	 */
+	private List<Message> pullPaginateDelicious(int startIndex,int itemNum) {
+		// TODO Auto-generated method stub
+		List<Message> result = new LinkedList<Message>();
+		try {
+			transport.open();
+			result = client.pullDelicious(startIndex, itemNum);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
