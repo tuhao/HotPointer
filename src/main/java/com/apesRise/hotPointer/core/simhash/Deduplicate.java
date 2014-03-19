@@ -44,33 +44,16 @@ public class Deduplicate {
 	}
 	
 	/**
-	 * 推荐信息表去重
-	 
-	public void dedupMessageDB(){
-		Deduplicate dedup = new Deduplicate();
-		List<Message> msgs = client.getAllSyncApproved();
-		List<Integer> duplicates = dedup.dedup(dedup.simHashMapInit(),msgs);
-		client.deleteMsgs(duplicates);
-		System.out.println(duplicates.size() + " duplicates items deleted from signature_message");
-	}
-	*/
-	
-	/**
 	 * 
 	 */
 	public void syncApproved(List<Message> approveResult,List<Message> approvedMsgs){
 		List<Message> result = new LinkedList<Message>();
 		List<Integer> duplicates = dedup(approveResult,approvedMsgs,result);
-		int count = client.pushApprove(result);
-		System.out.println(result.size() + " approve messages ,pushed " + count);
-		if(client.deleteMeta(duplicates)){
-			System.out.println(duplicates.size() + " duplicates approve messages deleted from approve_metadata");
-		}else{
-			System.out.println("Approve duplicates messages delete trasaction fail..");
-		}
+		int pushedCount = client.pushApprove(result);
+		deleteDuplicates(duplicates,result.size(),pushedCount);
 	}
 	
-	
+
 	/**
 	 * 
 	 * @param deliciousResult
@@ -79,15 +62,19 @@ public class Deduplicate {
 	public void syncDelicious(List<Message> deliciousResult,List<Message> deliciousMsgs){
 		List<Message> result = new LinkedList<Message>();
 		List<Integer> duplicates = dedup(deliciousResult,deliciousMsgs,result);
-		int count = client.pushDelicious(result);
-		System.out.println(result.size() + " delicious messages ,pushed " + count);
-		if(client.deleteMeta(duplicates)){
-			System.out.println(duplicates.size() + " duplicates delicious messages deleted from approve_metadata");
-		}else{
-			System.out.println("Delicious duplicates messages delete trasaction fail..");
-		}
-		
+		int pushedCount = client.pushDelicious(result);
+		deleteDuplicates(duplicates,result.size(),pushedCount);
 	}
+	
+	private void deleteDuplicates(List<Integer> duplicates,int resultCount,int pushedCount){
+		System.out.println(resultCount + " approve messages ,pushed " + pushedCount);
+		if(client.deleteMeta(duplicates)){
+			System.out.println(duplicates.size() + " duplicates messages deleted from approve_metadata");
+		}else{
+			System.out.println("Approve messages delete trasaction fail..");
+		}
+	}
+	
 	
 	/**
 	 * 
@@ -99,9 +86,8 @@ public class Deduplicate {
 	private List<Integer> dedup(List<Message> newMsgs,List<Message> passed,List<Message> result){
 			
 		Map<Integer, Map<String, List<SimHash>>> simHashMap = simHashMapInit();
-		dedup(simHashMap,passed);
-
-		List<Integer> duplicates = dedup(simHashMap, newMsgs);
+		List<Integer> duplicates = dedup(simHashMap,passed);
+		duplicates.addAll(dedup(simHashMap, newMsgs));
 		
 		Set<Integer> cache = new HashSet<Integer>();
 		for(int msgId : duplicates){
@@ -122,9 +108,9 @@ public class Deduplicate {
 	
 	/**
 	 * simHash 去重
-	 * @param simHashMap
-	 * @param msgs
-	 * @return
+	 * @param simHashMap  
+	 * @param msgs  输入信息列表
+	 * @return  重复id列表
 	 */
 	private List<Integer> dedup(Map<Integer, Map<String, List<SimHash>>> simHashMap,List<Message> msgs){
 		List<Integer> dupicateIds = new LinkedList<Integer>();

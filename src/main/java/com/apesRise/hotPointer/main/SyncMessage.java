@@ -35,9 +35,19 @@ public class SyncMessage {
 		unPassedIds.addAll(judge(newMsgs, deliciousMsgs, unPassed, deliciousProperties, deliciousResult));
 		dedup.syncDelicious(deliciousResult, deliciousMsgs);
 		
+		/**标记未通过审核为无关**/
 		markUnpassed(unPassedIds);
 	}
 	
+	/**
+	 * Knn分类计算
+	 * @param newMsgs   新输入数据列表
+	 * @param passed    通过的训练集列表
+	 * @param unPassed  未通过的训练集列表
+	 * @param properties 分类属性列表
+	 * @param result    通过的数据列表
+	 * @return          未通过数据id列表
+	 */
 	private static List<Integer> judge(List<Message> newMsgs,List<Message> passed,List<Message> unPassed,List<String> properties,List<Message> result){
 		List<Integer> unPassedIds = new LinkedList<Integer>();
 		KnnModel knnModel = new KnnModel(passed,unPassed,properties);
