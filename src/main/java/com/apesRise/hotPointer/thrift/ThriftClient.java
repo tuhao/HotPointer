@@ -20,6 +20,7 @@ import com.apesRise.hotPointer.thrift.push_gen.DataService.Client;
 import com.apesRise.hotPointer.thrift.push_gen.DataService.Processor.getDeliciousCount;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
+import com.apesRise.hotPointer.util.WFile;
 
 public class ThriftClient {
 	
@@ -33,7 +34,7 @@ public class ThriftClient {
 	
 	private Client client = null;
 	private TTransport transport = null;
-	private static int itemNum = 500;
+	private static int itemNum = 2;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -436,15 +437,16 @@ public class ThriftClient {
 	
 	
 	public static void main(String[] args) {
-//		String path = "data_sets/unrelated/";
-		String path = "train/delta/";
+		String deliciousPath = "data_sets/approve_delta/";
 		ThriftClient client = ThriftClient.getInstance();
-//		List<Message> unRelated = client.getAllMetaMsg();
-//		for(Message msg:unRelated){
-//			String filename = path + msg.getId() + ".txt";
-//			WFile.wf(filename, msg.getContent(), false);
-//		}
-		System.out.println(client.getMsgCountBySort(Constant.META));
+		List<Message> deliciousMsgs = client.getAllDelicious(0);
+		deliciousMsgs.addAll(client.getAllMsgBySort(Constant.APPROVED, 2000));
+		for(Message msg:deliciousMsgs){
+			String filename = deliciousPath + msg.getId() + ".txt";
+			WFile.wf(filename, msg.getContent(), false);
+			System.out.println(msg.getId() + " " + msg.getContent() + "\n");
+		}
+		
 	}
 	
 	

@@ -1,18 +1,12 @@
 package com.apesRise.hotPointer.core.knn;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import com.apesRise.hotPointer.thrift.ThriftClient;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
-import com.apesRise.hotPointer.util.Constant;
-import com.apesRise.hotPointer.util.ReadAll;
-import com.apesRise.hotPointer.util.ReadByLine;
 import com.apesRise.hotPointer.util.WordCount;
 
 public class KnnModel {
@@ -20,7 +14,6 @@ public class KnnModel {
 	public boolean DEBUG = false;
 	long start = 0;
 
-	private ThriftClient client = ThriftClient.getInstance();
 	private List<KNN> metric = new LinkedList<KNN>();
 
 	private static int k = 7;
@@ -49,7 +42,8 @@ public class KnnModel {
 	 * @param properties
 	 */
 	public KnnModel(List<Message> passedMsgs,List<Message> unPasseddMsgs,List<String> properties) {
-		learnFromRemote(passedMsgs,unPasseddMsgs,properties);
+		initKnnModel(metric, properties, passedMsgs, true);
+		initKnnModel(metric, properties, unPasseddMsgs, false);
 	}
 
 	public boolean judge(String content) {
@@ -57,19 +51,12 @@ public class KnnModel {
 //		distanceMap(distanceMap, content, metric);
 //		return findKNeibor(distanceMap);
 		
-		
 		KNN[] data = new KNN[metric.size()];
 		buildData(data, content, metric);
 		HeapSort.buildMaxHeapify(data);
 		HeapSort.heapSort(data);
 		return findKNeibor(data);
 	}
-
-	private void learnFromRemote(List<Message> approvedMsgs,List<Message> unApprovedMsgs,List<String> properties) {
-		initKnnModel(metric, properties, unApprovedMsgs, false);
-		initKnnModel(metric, properties, approvedMsgs, true);
-	}
-
 
 	private void initKnnModel(List<KNN> metric, List<String> properties,
 			List<Message> msgs, boolean result) {

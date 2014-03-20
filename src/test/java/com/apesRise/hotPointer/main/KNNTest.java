@@ -23,6 +23,7 @@ public class KNNTest {
 	static ThriftClient client = ThriftClient.getInstance();
 
 	public static void main(String[] args) {
+		/*
 		String content = "【 “舌尖上的新疆”新鲜出炉！】网友：“对于我们这些吃货来说，任何妄图把大盘鸡拉条子羊肉串烤包子馕包肉哈密瓜葡萄干从祖国分离出去成为进口食品的阴谋都是痴心妄想！！”戳图↓↓50款精选新疆美食，哪一样是你的心头最爱？";
 		List<Message> approvedMsgs = client.getAllSyncApproved(0);
 		List<Message> unApprovedMsgs = client.getAllMsgBySort(Constant.UNRELATED, 0);
@@ -31,34 +32,54 @@ public class KNNTest {
 		knnModel.DEBUG = true;
 		System.out.println(knnModel.judge(content));
 		// wordCount();
+		 * */
+		knnPropertyTest();
 	}
 
-	private static void knnFilterTest() {
-		List<Message> msgs = new LinkedList<Message>();
-		File file = new File(Constant.META_DIR);
+	private static void knnPropertyTest() {
+		List<Message> newMsgs = new LinkedList<Message>();
+		File file = new File( "data_sets/approve_delta/");
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
 			msg.setId(Integer.parseInt(item.getName().substring(0,
 					item.getName().lastIndexOf(".txt"))));
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
-			msgs.add(msg);
+			newMsgs.add(msg);
 		}
-		String approveDir = "train/delta_approve/";
-		String unrelatedDir = "train/delta_unrelated/";
-		List<Message> approvedMsgs = client.getAllSyncApproved(0);
-		List<Message> unApprovedMsgs = client.getAllMsgBySort(Constant.UNRELATED, 0);
-		List<String> properties = ReadByLine.readByLine(Constant.KNN_APPROVE_PROPERTY_FILE, "utf-8");
-		KnnModel knnModel = new KnnModel(approvedMsgs,unApprovedMsgs,properties);
-		for (Message msg : msgs) {
+		
+		List<Message> passed = new LinkedList<Message>();
+		List<Message> unPassed = new LinkedList<Message>();
+		String passedPath = "data_sets/approve_delta/";
+		String unPassedPath = "data_sets/unrelated_delta/";
+		file = new File(passedPath);
+		for (File item : file.listFiles()) {
+			Message msg = new Message();
+			msg.setId(Integer.parseInt(item.getName().substring(0,
+					item.getName().lastIndexOf(".txt"))));
+			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
+			passed.add(msg);
+		}
+		int count =0;
+		file = new File(unPassedPath);
+		for (File item : file.listFiles()) {
+			Message msg = new Message();
+			msg.setId(Integer.parseInt(item.getName().substring(0,
+					item.getName().lastIndexOf(".txt"))));
+			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
+			unPassed.add(msg);
+//			if(count ++ > passed.size()) break;
+		}
+		List<String> properties = ReadByLine.readByLine("KnnProperties.txt.bak", "utf-8");
+		KnnModel knnModel = new KnnModel(passed,unPassed,properties);
+		for (Message msg : newMsgs) {
 			boolean result = knnModel.judge(msg.getContent());
-			String output = unrelatedDir;
-			if (result) {
-				output = approveDir;
-			}
-			WFile.wf(output + msg.getId() + ".txt", msg.getContent(), false);
-			// System.out.println(KnnModel.judge(msg.getContent()) + " " +
+			System.out.println( result+ " " +	 msg.getContent());
+			if(!result) count ++;
+//			WFile.wf(output + msg.getId() + ".txt", msg.getContent(), false);
+//			 System.out.println(KnnModel.judge(msg.getContent()) + " " +
 			// msg.getContent());
 		}
+		System.out.println("false count:" + count);
 	}
 
 	/*
