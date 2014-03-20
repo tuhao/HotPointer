@@ -34,6 +34,16 @@ public class SyncMessage {
 		List<Message> deliciousResult = client.getAllMsgBySort(Constant.DELICIOUS, 0); //经过页面审批为美食但未同步的数据
 		unPassedIds.addAll(judge(newMsgs, deliciousMsgs, unPassed, deliciousProperties, deliciousResult));
 		dedup.syncDelicious(deliciousResult, deliciousMsgs);
+		*/
+		
+		/**健康饮食信息
+		
+		List<Message> healthyMsgs = client.getAllHealthy(0);
+		List<String> healthyProperties = ReadByLine.readByLine(Constant.KNN_HEALTHY_PROPERTY_FILE, "utf-8");
+		List<Message> healthyResult = client.getAllMsgBySort(Constant.HEALTHY, 0); //经过页面审批为美食但未同步的数据
+		unPassedIds.addAll(judge(newMsgs, healthyMsgs, unPassed, healthyProperties, healthyResult));
+		dedup.syncHealthy(healthyResult, healthyMsgs);
+		*/
 		
 		/**标记未通过审核为无关**/
 		markUnpassed(unPassedIds);

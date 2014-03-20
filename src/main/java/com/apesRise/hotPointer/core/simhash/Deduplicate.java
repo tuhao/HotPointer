@@ -66,6 +66,18 @@ public class Deduplicate {
 		deleteDuplicates(duplicates,result.size(),pushedCount);
 	}
 	
+	/**
+	 * 
+	 * @param healthyResult
+	 * @param healthyMsgs
+	 */
+	public void syncHealthy(List<Message> healthyResult,List<Message> healthyMsgs){
+		List<Message> result = new LinkedList<Message>();
+		List<Integer> duplicates = dedup(healthyResult,healthyMsgs,result);
+		int pushedCount = client.pushHealthy(result);
+		deleteDuplicates(duplicates,result.size(),pushedCount);
+	}
+	
 	private void deleteDuplicates(List<Integer> duplicates,int resultCount,int pushedCount){
 		System.out.println(resultCount + " approve messages ,pushed " + pushedCount);
 		if(client.deleteMeta(duplicates)){

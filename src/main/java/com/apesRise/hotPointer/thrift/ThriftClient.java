@@ -3,7 +3,6 @@ package com.apesRise.hotPointer.thrift;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -17,7 +16,6 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
 import com.apesRise.hotPointer.thrift.push_gen.DataService.Client;
-import com.apesRise.hotPointer.thrift.push_gen.DataService.Processor.getDeliciousCount;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
 import com.apesRise.hotPointer.util.Constant;
 import com.apesRise.hotPointer.util.WFile;
@@ -34,7 +32,7 @@ public class ThriftClient {
 	
 	private Client client = null;
 	private TTransport transport = null;
-	private static int itemNum = 2;
+	private static int itemNum = 500;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -118,6 +116,26 @@ public class ThriftClient {
 		}
 		return msgs;
 	}
+	
+	/**
+	 * 拉取健康饮食表中所有数据
+	 * @return
+	 */
+	public List<Message> getAllHealthy(int count){
+		List<Message> msgs = new LinkedList<Message>();
+		int msgSum = getHealthyCount();
+		if(count > 0){
+			for( int i = 0;i < msgSum && i <= count;i = i + itemNum){
+				msgs.addAll(pullPaginateHealthy(i,itemNum));
+			}
+		}else{
+			for(int i =0;i < msgSum;i = i+ itemNum){
+				msgs.addAll(pullPaginateHealthy(i,itemNum));
+			}
+		}
+		return msgs;
+	}
+
 
 	
 	/**
@@ -209,6 +227,28 @@ public class ThriftClient {
 			return false;
 	}
 	
+	/**
+	 * 删除健康饮食表中数据
+	 * @param ids
+	 * @return
+	 */
+	public boolean deleteHealthy(List<Integer> ids){
+		   if(ids.size() == 0) return true;
+			try {
+				transport.open();
+				return client.deleteHealthy(ids);
+			} catch (TTransportException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally{
+				transport.close();
+			}
+			return false;
+	}
+	
 	
 	
 	/**
@@ -243,6 +283,28 @@ public class ThriftClient {
 		try {
 			transport.open();
 			count = client.pushDelicious(list);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return count;
+	}
+	
+	/**
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public int pushHealthy(List<Message> list){
+		int count = 0;
+		try {
+			transport.open();
+			count = client.pushHealthy(list);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -386,6 +448,27 @@ public class ThriftClient {
 		}
 		return 0;
 	}
+	
+	/**
+	 * 取得健康饮食表数据总数
+	 * @return
+	 */
+	private int getHealthyCount(){
+		try {
+			transport.open();
+			return client.getHealthyCount();
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return 0;
+		
+	}
 
 	
 	/**
@@ -423,6 +506,30 @@ public class ThriftClient {
 		try {
 			transport.open();
 			result = client.pullDelicious(startIndex, itemNum);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return result;
+	}
+	
+	/**
+	 * 分页形式拉取健康饮食表数据
+	 * @param startIndex
+	 * @param itemNum
+	 * @return
+	 */
+	private List<Message> pullPaginateHealthy(int startIndex,int itemNum) {
+		// TODO Auto-generated method stub
+		List<Message> result = new LinkedList<Message>();
+		try {
+			transport.open();
+			result = client.pullHealthy(startIndex, itemNum);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
