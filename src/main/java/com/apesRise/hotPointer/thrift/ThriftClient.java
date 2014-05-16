@@ -14,6 +14,8 @@ import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.apesRise.hotPointer.thrift.push_gen.DataService.Client;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
@@ -42,7 +44,11 @@ public class ThriftClient {
 			properties.load(fis);
 			String host = properties.getProperty("weixin.host");
 			String port = properties.getProperty("weixin.port");
-			
+			try{
+				itemNum = Integer.parseInt(properties.getProperty("thrift.itemNum"));
+			}catch(NumberFormatException e){
+				e.printStackTrace();
+			}
 			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),10000),50 * 1024 * 1024);
 			TProtocol protocol = new TBinaryProtocol(transport);
 			Client.Factory factory = new Client.Factory();

@@ -1,10 +1,10 @@
 #Fat Jar Configuration File
-#Mon Jan 27 23:08:01 CST 2014
+#Fri May 16 11:04:33 CST 2014
 onejar.license.required=true
 manifest.classpath=
 manifest.removesigners=true
 onejar.checkbox=false
-jarname=/root/HotPointer.jar
+jarname=C\:\\Users\\liuhang\\Desktop\\HotPointer.jar
 manifest.mergeall=true
 manifest.mainclass=com.apesRise.hotPointer.main.SyncMessage
 manifest.file=<createnew>
