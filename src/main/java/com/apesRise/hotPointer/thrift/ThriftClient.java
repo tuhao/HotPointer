@@ -9,7 +9,6 @@ import java.util.Properties;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.THttpClient;
@@ -34,7 +33,7 @@ public class ThriftClient {
 	}
 	
 	private Client client = null;
-//	private TTransport transport = null;
+	private TTransport transport = null;
 	
 	private static int itemNum = 500;
 	
@@ -53,11 +52,12 @@ public class ThriftClient {
 			}
 			String thriftUrl = "http://" + host +  ":" + port;
 			THttpClient tHttpClient = new THttpClient(thriftUrl);
-			TProtocol protocol = new TCompactProtocol(tHttpClient);
-			client = new Client(protocol);
+			TProtocol protocol = new TBinaryProtocol(tHttpClient);
+			client = new DataService.Client(protocol);
 			
 //			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),10000),50 * 1024 * 1024);
 //			TProtocol protocol = new TBinaryProtocol(transport);
+//			Client.Factory factory = new Client.Factory();
 //			client = factory.getClient(protocol);
 			
 		} catch (FileNotFoundException e) {
@@ -559,15 +559,15 @@ public class ThriftClient {
 	
 	
 	public static void main(String[] args) {
-		String deliciousPath = "data_sets/approve_delta/";
+//		String deliciousPath = "data_sets/approve_delta/";
 		ThriftClient client = ThriftClient.getInstance();
-		List<Message> deliciousMsgs = client.getAllDelicious(0);
-		deliciousMsgs.addAll(client.getAllMsgBySort(Constant.APPROVED, 2000));
-		for(Message msg:deliciousMsgs){
-			String filename = deliciousPath + msg.getId() + ".txt";
-			WFile.wf(filename, msg.getContent(), false);
-			System.out.println(msg.getId() + " " + msg.getContent() + "\n");
-		}
+		System.out.println(client.getMsgCount());
+//		deliciousMsgs.addAll(client.getAllMsgBySort(Constant.APPROVED, 2000));
+//		for(Message msg:deliciousMsgs){
+//			String filename = deliciousPath + msg.getId() + ".txt";
+//			WFile.wf(filename, msg.getContent(), false);
+//			System.out.println(msg.getId() + " " + msg.getContent() + "\n");
+//		}
 		
 	}
 	
