@@ -36,6 +36,7 @@ public class ThriftClient {
 	private TTransport transport = null;
 	
 	private static int itemNum = 500;
+	private static boolean DEBUG = false;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -45,20 +46,24 @@ public class ThriftClient {
 			properties.load(fis);
 			String host = properties.getProperty("weixin.host");
 			String port = properties.getProperty("weixin.port");
-			try{
-				itemNum = Integer.parseInt(properties.getProperty("thrift.itemNum"));
-			}catch(NumberFormatException e){
-				e.printStackTrace();
+			if(!DEBUG) {
+				try{
+					itemNum = Integer.parseInt(properties.getProperty("thrift.itemNum"));
+				}catch(NumberFormatException e){
+					e.printStackTrace();
+				}
 			}
-			String thriftUrl = "http://" + host +  ":" + port;
-			THttpClient tHttpClient = new THttpClient(thriftUrl);
-			TProtocol protocol = new TBinaryProtocol(tHttpClient);
-			client = new DataService.Client(protocol);
+//			String thriftUrl = "http://" + host +  ":" + port;
+//			THttpClient tHttpClient = new THttpClient(thriftUrl);
+//			tHttpClient.setConnectTimeout(1000 * 30);
+//			tHttpClient.setReadTimeout(1000 * 30);
+//			TProtocol protocol = new TBinaryProtocol(tHttpClient);
+//			client = new DataService.Client(protocol);
 			
-//			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),10000),50 * 1024 * 1024);
-//			TProtocol protocol = new TBinaryProtocol(transport);
-//			Client.Factory factory = new Client.Factory();
-//			client = factory.getClient(protocol);
+			transport = new TFramedTransport(new TSocket(host, Integer.parseInt(port),10000),50 * 1024 * 1024);
+			TProtocol protocol = new TBinaryProtocol(transport);
+			Client.Factory factory = new Client.Factory();
+			client = factory.getClient(protocol);
 			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -66,10 +71,12 @@ public class ThriftClient {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (TTransportException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally{
+		} 
+//		catch (TTransportException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} 
+		  finally{
 			if(fis != null){
 				try {
 					fis.close();
@@ -184,7 +191,7 @@ public class ThriftClient {
 	public boolean msgSortMark(List<Integer> ids,int sortId){
 		if (ids.size() == 0) return true;
 		try {
-//			transport.open();
+			transport.open();
 			return client.msgSortMark(ids, sortId);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -193,7 +200,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return false;
 	}
@@ -206,7 +213,7 @@ public class ThriftClient {
 	public boolean deleteMeta(List<Integer> ids){
 		   if(ids.size() == 0) return true;
 			try {
-//				transport.open();
+				transport.open();
 				return client.deleteMeta(ids);
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block
@@ -215,7 +222,7 @@ public class ThriftClient {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally{
-//				transport.close();
+				transport.close();
 			}
 			return false;
 	}
@@ -228,7 +235,7 @@ public class ThriftClient {
 	public boolean deleteMsgs(List<Integer> ids){
 		   if(ids.size() == 0) return true;
 			try {
-//				transport.open();
+				transport.open();
 				return client.deleteMsgs(ids);
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block
@@ -237,7 +244,7 @@ public class ThriftClient {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally{
-//				transport.close();
+				transport.close();
 			}
 			return false;
 	}
@@ -250,7 +257,7 @@ public class ThriftClient {
 	public boolean deleteHealthy(List<Integer> ids){
 		   if(ids.size() == 0) return true;
 			try {
-//				transport.open();
+				transport.open();
 				return client.deleteHealthy(ids);
 			} catch (TTransportException e) {
 				// TODO Auto-generated catch block
@@ -259,7 +266,7 @@ public class ThriftClient {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally{
-//				transport.close();
+				transport.close();
 			}
 			return false;
 	}
@@ -274,7 +281,7 @@ public class ThriftClient {
 	public int pushApprove(List<Message> list){
 		int count = 0;
 		try {
-//			transport.open();
+			transport.open();
 			count = client.pushApprove(list);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -283,7 +290,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return count;
 	}
@@ -296,7 +303,7 @@ public class ThriftClient {
 	public int pushDelicious(List<Message> list){
 		int count = 0;
 		try {
-//			transport.open();
+			transport.open();
 			count = client.pushDelicious(list);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -305,7 +312,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return count;
 	}
@@ -318,7 +325,7 @@ public class ThriftClient {
 	public int pushHealthy(List<Message> list){
 		int count = 0;
 		try {
-//			transport.open();
+			transport.open();
 			count = client.pushHealthy(list);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -327,7 +334,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return count;
 	}
@@ -342,7 +349,7 @@ public class ThriftClient {
 	private List<Message> pullPaginateMsg(int startIndex,int itemNum){
 		List<Message> result = new LinkedList<Message>();
 		try {
-//			transport.open();
+			transport.open();
 			result = client.pullPaginateMsg(startIndex, itemNum);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -351,7 +358,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return result;
 	}
@@ -366,7 +373,7 @@ public class ThriftClient {
 	private List<Message> pullPaginateMsgBySort(int startIndex,int itemNum,int sortId){
 		List<Message> result = new LinkedList<Message>();
 		try {
-//			transport.open();
+			transport.open();
 			result = client.pullPaginateMsgBySort(startIndex, itemNum,sortId);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -375,7 +382,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return result;
 	}
@@ -386,7 +393,7 @@ public class ThriftClient {
 	 */
 	private int getMsgCount(){
 		try {
-//			transport.open();
+			transport.open();
 			return client.getMsgCount();
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -395,7 +402,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return 0;
 	}
@@ -407,7 +414,7 @@ public class ThriftClient {
 	 */
 	private int getMsgCountBySort(int sort_id){
 		try {
-//			transport.open();
+			transport.open();
 			return client.getMsgCountBySort(sort_id);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -416,7 +423,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return 0;
 	}
@@ -427,7 +434,7 @@ public class ThriftClient {
 	 */
 	private int getApproveCount(){
 		try {
-//			transport.open();
+			transport.open();
 			return client.getApproveCount();
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -436,7 +443,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return 0;
 	}
@@ -450,7 +457,7 @@ public class ThriftClient {
 	private int getDeliciousCount() {
 		// TODO Auto-generated method stub
 		try {
-//			transport.open();
+			transport.open();
 			return client.getDeliciousCount();
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -459,7 +466,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return 0;
 	}
@@ -470,7 +477,7 @@ public class ThriftClient {
 	 */
 	private int getHealthyCount(){
 		try {
-//			transport.open();
+			transport.open();
 			return client.getHealthyCount();
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -479,7 +486,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return 0;
 		
@@ -495,7 +502,7 @@ public class ThriftClient {
 	private List<Message> pullPaginateApprove(int startIndex,int itemNum){
 		List<Message> result = new LinkedList<Message>();
 		try {
-//			transport.open();
+			transport.open();
 			result = client.pullApprove(startIndex, itemNum);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -504,7 +511,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return result;
 	}
@@ -519,7 +526,7 @@ public class ThriftClient {
 		// TODO Auto-generated method stub
 		List<Message> result = new LinkedList<Message>();
 		try {
-//			transport.open();
+			transport.open();
 			result = client.pullDelicious(startIndex, itemNum);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -528,7 +535,7 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return result;
 	}
@@ -543,7 +550,7 @@ public class ThriftClient {
 		// TODO Auto-generated method stub
 		List<Message> result = new LinkedList<Message>();
 		try {
-//			transport.open();
+			transport.open();
 			result = client.pullHealthy(startIndex, itemNum);
 		} catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -552,22 +559,39 @@ public class ThriftClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally{
-//			transport.close();
+			transport.close();
 		}
 		return result;
 	}
 	
 	
 	public static void main(String[] args) {
-//		String deliciousPath = "data_sets/approve_delta/";
-		ThriftClient client = ThriftClient.getInstance();
-		System.out.println(client.getMsgCount());
-//		deliciousMsgs.addAll(client.getAllMsgBySort(Constant.APPROVED, 2000));
-//		for(Message msg:deliciousMsgs){
-//			String filename = deliciousPath + msg.getId() + ".txt";
-//			WFile.wf(filename, msg.getContent(), false);
-//			System.out.println(msg.getId() + " " + msg.getContent() + "\n");
-//		}
+		
+		DEBUG = true;
+		if (args.length > 1){
+			int argi = 0;
+			int count = 0;
+			if (args[argi].equalsIgnoreCase("-n")){
+				count = Integer.parseInt(args[argi + 1]);
+				argi = argi + 2;
+			}
+			if (args[argi].equalsIgnoreCase("-i")){
+				itemNum = Integer.parseInt(args[argi + 1]);
+			}
+			
+			ThriftClient client = ThriftClient.getInstance();
+			System.out.println("msgCount:" + client.getMsgCountBySort(1) + ",itemNum:" + itemNum + ",count:" + count + ",sort_id:1");
+			long start = System.currentTimeMillis();
+			List<Message> deliciousMsgs = client.getAllMsgBySort(1, count);
+			System.out.println(System.currentTimeMillis() - start + "ms");
+			for(Message msg:deliciousMsgs){
+//				String filename = deliciousPath + msg.getId() + ".txt";
+//				WFile.wf(filename, msg.getContent(), false);
+				System.out.println(msg.getId() + " " + msg.getContent() + "\n");
+			}
+		}
+		
+	
 		
 	}
 	
