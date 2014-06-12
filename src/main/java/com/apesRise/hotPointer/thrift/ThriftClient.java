@@ -36,6 +36,7 @@ public class ThriftClient {
 	private TTransport transport = null;
 	
 	private static int itemNum = 500;
+	private static boolean DEBUG = false;
 	
 	private ThriftClient(){
 		Properties properties = new Properties();
@@ -45,13 +46,13 @@ public class ThriftClient {
 			properties.load(fis);
 			String host = properties.getProperty("weixin.host");
 			String port = properties.getProperty("weixin.port");
-			try{
-				itemNum = Integer.parseInt(properties.getProperty("thrift.itemNum"));
-			}catch(NumberFormatException e){
-				e.printStackTrace();
+			if(!DEBUG) {
+				try{
+					itemNum = Integer.parseInt(properties.getProperty("thrift.itemNum"));
+				}catch(NumberFormatException e){
+					e.printStackTrace();
+				}
 			}
-//			String thriftUrl = "http://" + host +  ":" + port;
-//			THttpClient tHttpClient = new THttpClient(thriftUrl);
 //			TProtocol protocol = new TBinaryProtocol(tHttpClient);
 //			client = new DataService.Client(protocol);
 			
@@ -628,15 +629,32 @@ public class ThriftClient {
 	
 	
 	public static void main(String[] args) {
-//		String deliciousPath = "data_sets/approve_delta/";
-		ThriftClient client = ThriftClient.getInstance();
-		System.out.println(client.getMsgCount());
-//		deliciousMsgs.addAll(client.getAllMsgBySort(Constant.APPROVED, 2000));
-//		for(Message msg:deliciousMsgs){
-//			String filename = deliciousPath + msg.getId() + ".txt";
-//			WFile.wf(filename, msg.getContent(), false);
-//			System.out.println(msg.getId() + " " + msg.getContent() + "\n");
-//		}
+		
+		DEBUG = true;
+		if (args.length > 1){
+			int argi = 0;
+			int count = 0;
+			if (args[argi].equalsIgnoreCase("-n")){
+				count = Integer.parseInt(args[argi + 1]);
+				argi = argi + 2;
+			}
+			if (args[argi].equalsIgnoreCase("-i")){
+				itemNum = Integer.parseInt(args[argi + 1]);
+			}
+			
+			ThriftClient client = ThriftClient.getInstance();
+			System.out.println("msgCount:" + client.getMsgCountBySort(1) + ",itemNum:" + itemNum + ",count:" + count + ",sort_id:1");
+			long start = System.currentTimeMillis();
+			List<Message> deliciousMsgs = client.getAllMsgBySort(1, count);
+			System.out.println(System.currentTimeMillis() - start + "ms");
+			for(Message msg:deliciousMsgs){
+//				String filename = deliciousPath + msg.getId() + ".txt";
+//				WFile.wf(filename, msg.getContent(), false);
+				System.out.println(msg.getId() + " " + msg.getContent() + "\n");
+			}
+		}
+		
+	
 		
 	}
 	
