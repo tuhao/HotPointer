@@ -355,6 +355,27 @@ public class ThriftClient {
 		return count;
 	}
 	
+	/**
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public int pushUnRelated(List<Message> list){
+		int count = 0;
+		try {
+			transport.open();
+			count = client.pushUnRelated(list);
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally{
+			transport.close();
+		}
+		return count;
+	}
 	
 	/**
 	 * 分页拉取元数据表中数据
