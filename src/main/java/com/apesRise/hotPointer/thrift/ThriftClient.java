@@ -186,7 +186,7 @@ public class ThriftClient {
 		List<Message> msgs = new LinkedList<Message>();
 		int msgSum = getMsgCountBySort(sortId);
 		if(count > 0){
-			for (int i =0;i < msgSum && i <= count;i = i + itemNum){
+			for (int i =0;i < msgSum && i < count;i = i + itemNum){
 				msgs.addAll(pullPaginateMsgBySort(i,itemNum,sortId));
 			}
 		}else{

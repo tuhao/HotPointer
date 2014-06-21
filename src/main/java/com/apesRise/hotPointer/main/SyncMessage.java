@@ -17,9 +17,10 @@ public class SyncMessage {
 	public static void main(String[] args) {
 		
 		Deduplicate dedup = new Deduplicate();
+		dedup.dedupMetaDB();
 		List<Integer> unPassedIds = new LinkedList<Integer>();
 		List<Message> newMsgs = client.getAllMsgBySort(Constant.META, 0);
-		List<Message> unPassed = client.getAllMsgBySort(Constant.UNRELATED, 2000);
+		List<Message> unPassed = client.getAllUnRelated(2000);
 		
 		/**菜谱信息**/
 		List<Message> approvedMsgs = client.getAllSyncApproved(2000);
@@ -29,10 +30,10 @@ public class SyncMessage {
 		dedup.syncApproved(approveResult,approvedMsgs);
 		
 		/**美食信息*/
-		List<Message> deliciousMsgs = client.getAllDelicious(0);
-//		List<String> deliciousProperties = ReadByLine.readByLine(Constant.KNN_DELICIOUS_PROPERTY_FILE, "utf-8");
+		List<Message> deliciousMsgs = client.getAllDelicious(2000);
+		List<String> deliciousProperties = ReadByLine.readByLine(Constant.KNN_DELICIOUS_PROPERTY_FILE, "utf-8");
 		List<Message> deliciousResult = client.getAllMsgBySort(Constant.DELICIOUS, 0); //经过页面审批为美食但未同步的数据
-//		unPassedIds.addAll(judge(newMsgs, deliciousMsgs, unPassed, deliciousProperties, deliciousResult));
+		unPassedIds.addAll(judge(newMsgs, deliciousMsgs, unPassed, deliciousProperties, deliciousResult));
 		dedup.syncDelicious(deliciousResult, deliciousMsgs);
 		
 		/**健康饮食信息*/
@@ -42,12 +43,22 @@ public class SyncMessage {
 		List<Message> healthyResult = client.getAllMsgBySort(Constant.HEALTHY, 0); //经过页面审批为美食但未同步的数据
 //		unPassedIds.addAll(judge(newMsgs, healthyMsgs, unPassed, healthyProperties, healthyResult));
 		dedup.syncHealthy(healthyResult, healthyMsgs);
-		
+		 	
 		/**标记未通过审核为无关**/
 		markUnpassed(unPassedIds);
 		
 	}
 	
+	
+	private static void createTrain(){
+		List<Message> unRelateds = client.getAllMsgBySort(Constant.UNRELATED, 10);
+		client.pushUnRelated(unRelateds);
+		List<Integer> deleteIds = new LinkedList<Integer>();
+		for(Message msg:unRelateds){
+			deleteIds.add(msg.getId());
+		}
+		client.deleteMeta(deleteIds);
+	}
 	/**
 	 * Knn分类计算
 	 * @param newMsgs   新输入数据列表
