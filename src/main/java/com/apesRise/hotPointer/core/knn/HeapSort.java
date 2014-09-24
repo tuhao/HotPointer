@@ -1,8 +1,6 @@
 package com.apesRise.hotPointer.core.knn;
 
 
-import com.apesRise.hotPointer.core.knn.KnnModel.KNN;
-
 public class HeapSort {
 
 	private static KNN[] data;

@@ -18,22 +18,6 @@ public class KnnModel {
 
 	private static int k = 7;
 
-	public static class KNN {
-		int msgId;
-		List<Map<String, Integer>> valueMaps;
-		boolean result = false;
-		String content;
-		public int distance;
-
-		public KNN(int msgId, String content,
-				List<Map<String, Integer>> valueMaps, boolean result) {
-			this.msgId = msgId;
-			this.content = content;
-			this.valueMaps = valueMaps;
-			this.result = result;
-		}
-	}
-
 
 	/**
 	 * 
@@ -111,7 +95,7 @@ public class KnnModel {
 				wrong++;
 			}
 			if (DEBUG) {
-				System.out.println(knn.distance + " : " + knn.result + " "
+				System.out.println("msgId:" + knn.msgId + " " + "distance:" + knn.distance + " result:" + knn.result + " content:"
 						+ knn.content);
 			}
 		}

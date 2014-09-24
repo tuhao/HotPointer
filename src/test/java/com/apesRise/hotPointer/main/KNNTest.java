@@ -20,25 +20,19 @@ import com.apesRise.hotPointer.util.WordCount;
 
 public class KNNTest {
 
-	static ThriftClient client = ThriftClient.getInstance();
+	private ThriftClient client = ThriftClient.getInstance();
 
-	public static void main(String[] args) {
-		/*
-		String content = "【 “舌尖上的新疆”新鲜出炉！】网友：“对于我们这些吃货来说，任何妄图把大盘鸡拉条子羊肉串烤包子馕包肉哈密瓜葡萄干从祖国分离出去成为进口食品的阴谋都是痴心妄想！！”戳图↓↓50款精选新疆美食，哪一样是你的心头最爱？";
-		List<Message> approvedMsgs = client.getAllSyncApproved(0);
-		List<Message> unApprovedMsgs = client.getAllMsgBySort(Constant.UNRELATED, 0);
-		List<String> properties = ReadByLine.readByLine(Constant.KNN_APPROVE_PROPERTY_FILE, "utf-8");
-		KnnModel knnModel = new KnnModel(approvedMsgs,unApprovedMsgs,properties);
-		knnModel.DEBUG = true;
-		System.out.println(knnModel.judge(content));
-		// wordCount();
-		 * */
-		knnPropertyTest();
-	}
-
-	private static void knnPropertyTest() {
-		List<Message> newMsgs = new LinkedList<Message>();
-		File file = new File( "data_sets/approve_delta/");
+	List<Message> newMsgs = new LinkedList<Message>();
+	List<Message> passed = new LinkedList<Message>();
+	List<Message> unPassed = new LinkedList<Message>();
+	List<String> properties = new LinkedList<String>();
+	
+	private KNNTest(){
+		final String approvePath = "train/approve";
+		final String deltaApprovePath = "train/delta_approve";
+		final String unRelatedPath = "train/unrelated";
+		
+		File file = new File(approvePath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
 			msg.setId(Integer.parseInt(item.getName().substring(0,
@@ -47,11 +41,8 @@ public class KNNTest {
 			newMsgs.add(msg);
 		}
 		
-		List<Message> passed = new LinkedList<Message>();
-		List<Message> unPassed = new LinkedList<Message>();
-		String passedPath = "data_sets/approve_delta/";
-		String unPassedPath = "data_sets/unrelated_delta/";
-		file = new File(passedPath);
+		
+		file = new File(deltaApprovePath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
 			msg.setId(Integer.parseInt(item.getName().substring(0,
@@ -59,8 +50,8 @@ public class KNNTest {
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			passed.add(msg);
 		}
-		int count =0;
-		file = new File(unPassedPath);
+		
+		file = new File(unRelatedPath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
 			msg.setId(Integer.parseInt(item.getName().substring(0,
@@ -69,7 +60,24 @@ public class KNNTest {
 			unPassed.add(msg);
 //			if(count ++ > passed.size()) break;
 		}
-		List<String> properties = ReadByLine.readByLine("KnnProperties.txt.bak", "utf-8");
+		properties = ReadByLine.readByLine("KnnProperties.txt.bak", "utf-8");
+	}
+	
+	
+	
+	public static void main(String[] args) {
+		new KNNTest().singelTest();
+	}
+	
+	private void singelTest(){
+		String content = "【简单又诱惑的樱桃大杏仁蛋糕】 1）鸡蛋、淡奶油、酸奶、白糖搅拌匀，筛入低粉拌匀 ；2）倒入铁锅，再加入去核樱桃、大杏仁、芝士碎，七分满就好；3）） 烤箱预热180度，烤25分钟左右即可。#美食#http://app.qpic.cn/mblogpic/fa74ea886a47cf3320de/460.jpg";
+		KnnModel knnModel = new KnnModel(passed,unPassed,properties);
+		knnModel.DEBUG = true;
+		System.out.println("result:" + knnModel.judge(content));
+	}
+
+	private void knnPropertyBatchTest() {
+		int count =0;
 		KnnModel knnModel = new KnnModel(passed,unPassed,properties);
 		for (Message msg : newMsgs) {
 			boolean result = knnModel.judge(msg.getContent());
