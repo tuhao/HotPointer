@@ -16,7 +16,7 @@ public class KnnModel {
 
 	private List<KNN> metric = new LinkedList<KNN>();
 
-	private static int k = 7;
+	private static int k = 9;
 
 
 	/**
@@ -95,8 +95,8 @@ public class KnnModel {
 				wrong++;
 			}
 			if (DEBUG) {
-				System.out.println("msgId:" + knn.msgId + " " + "distance:" + knn.distance + " result:" + knn.result + " content:"
-						+ knn.content);
+				System.out.println("msgId:" + knn.msgId + " " + "distance:" + knn.distance + " result:" + knn.result + " valueMap:"
+						+ knn.valueMaps + " content:" + knn.content);
 			}
 		}
 //		System.out.println(System.currentTimeMillis() - start);

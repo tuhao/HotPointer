@@ -27,11 +27,13 @@ public class KNNTest {
 	List<Message> unPassed = new LinkedList<Message>();
 	List<String> properties = new LinkedList<String>();
 	
-	private KNNTest(){
+	Map<String,Integer> propertyMap = new HashMap<String, Integer>();
+
+	private KNNTest() {
 		final String approvePath = "train/approve";
 		final String deltaApprovePath = "train/delta_approve";
 		final String unRelatedPath = "train/unrelated";
-		
+
 		File file = new File(approvePath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
@@ -40,8 +42,7 @@ public class KNNTest {
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			newMsgs.add(msg);
 		}
-		
-		
+
 		file = new File(deltaApprovePath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
@@ -50,7 +51,7 @@ public class KNNTest {
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			passed.add(msg);
 		}
-		
+
 		file = new File(unRelatedPath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
@@ -58,33 +59,53 @@ public class KNNTest {
 					item.getName().lastIndexOf(".txt"))));
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			unPassed.add(msg);
-//			if(count ++ > passed.size()) break;
+			// if(count ++ > passed.size()) break;
 		}
-		properties = ReadByLine.readByLine("KnnProperties.txt.bak", "utf-8");
+		properties = ReadByLine.readByLine("train/train_attributes.txt","utf-8");
+//		properties = ReadByLine.readByLine("KnnApproveProperties.txt", "utf-8");
+		for(String word:properties){
+			propertyMap.put(word,1);
+		}
 	}
-	
-	
-	
+
 	public static void main(String[] args) {
-		new KNNTest().singelTest();
+		KNNTest test = new KNNTest();
+		String text = "[话筒]转发=>【年底到了，小心人贩子】现在丢一个孩子会要了一个家庭的命，有网友提出修改刑法，以买卖为营利的拐卖妇女儿童一律死刑。而户籍方面，儿童入户口时一律采集指纹入电脑，保证被偷后无法入户并能及时找到。支持的请为了儿童转发！在发。。。[话筒]http://ww2.sinaimg.cn/bmiddle/9647a31egw1ecdib0tzx0j20go0bt74q.jpg";
+//		String text = "【简单又诱惑的樱桃大杏仁蛋糕】 1）鸡蛋、淡奶油、酸奶、白糖搅拌匀，筛入低粉拌匀 ；2）倒入铁锅，再加入去核樱桃、大杏仁、芝士碎，七分满就好；3）） 烤箱预热180度，烤25分钟左右即可。#美食#http://app.qpic.cn/mblogpic/fa74ea886a47cf3320de/460.jpg";
+//		String text = "【椒盐排骨】1.排骨切段，青红辣椒，洋葱切末。用葱姜，盐，糖，酱油，料酒把排骨腌制一小时;2.鸡蛋和淀粉搅成糊状。排骨裹上蛋糊放入五成热的油中炸酥，捞起滤干油;3.把辣椒，洋葱末加适量的椒盐略炒，放入排骨翻炒均匀。http://ww2.sinaimg.cn/bmiddle/88ffde5fjw1ecuyf0wt3bj20c909zgmh.jpg";
+		test.segmentHitTest(text);
+		test.singelTest(text);
 	}
-	
-	private void singelTest(){
-		String content = "【简单又诱惑的樱桃大杏仁蛋糕】 1）鸡蛋、淡奶油、酸奶、白糖搅拌匀，筛入低粉拌匀 ；2）倒入铁锅，再加入去核樱桃、大杏仁、芝士碎，七分满就好；3）） 烤箱预热180度，烤25分钟左右即可。#美食#http://app.qpic.cn/mblogpic/fa74ea886a47cf3320de/460.jpg";
-		KnnModel knnModel = new KnnModel(passed,unPassed,properties);
+
+	private void singelTest(String text) {
+		
+		KnnModel knnModel = new KnnModel(passed, unPassed, properties);
 		knnModel.DEBUG = true;
-		System.out.println("result:" + knnModel.judge(content));
+		System.out.println("result:" + knnModel.judge(text));
+	}
+
+	private void segmentHitTest(String text) {
+		Map<String, Integer> wordCountMap = new HashMap<String, Integer>();
+		WordCount.chineseCharacterWordCount(wordCountMap, text);
+		System.out.println("命中属性:");
+		for(String word :wordCountMap.keySet()){
+			if(propertyMap.get(word) != null){
+				System.out.print(word + " ");
+			}
+		}
+		System.out.println();
 	}
 
 	private void knnPropertyBatchTest() {
-		int count =0;
-		KnnModel knnModel = new KnnModel(passed,unPassed,properties);
+		int count = 0;
+		KnnModel knnModel = new KnnModel(passed, unPassed, properties);
 		for (Message msg : newMsgs) {
 			boolean result = knnModel.judge(msg.getContent());
-			System.out.println( result+ " " +	 msg.getContent());
-			if(!result) count ++;
-//			WFile.wf(output + msg.getId() + ".txt", msg.getContent(), false);
-//			 System.out.println(KnnModel.judge(msg.getContent()) + " " +
+			System.out.println(result + " " + msg.getContent());
+			if (!result)
+				count++;
+			// WFile.wf(output + msg.getId() + ".txt", msg.getContent(), false);
+			// System.out.println(KnnModel.judge(msg.getContent()) + " " +
 			// msg.getContent());
 		}
 		System.out.println("false count:" + count);
@@ -118,7 +139,8 @@ public class KNNTest {
 
 	private static void wordCount() {
 		Map<String, Integer> wordCount = new HashMap<String, Integer>();
-		List<Message> messages = ThriftClient.getInstance().getAllSyncApproved(0);
+		List<Message> messages = ThriftClient.getInstance().getAllSyncApproved(
+				0);
 		for (Message msg : messages) {
 			WordCount.chineseCharacterWordCount(wordCount, msg.getContent());
 		}
