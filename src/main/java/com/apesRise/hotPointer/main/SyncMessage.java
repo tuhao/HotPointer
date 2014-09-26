@@ -24,7 +24,7 @@ public class SyncMessage {
 		
 		/**菜谱信息**/
 		List<Message> approvedMsgs = client.getAllSyncApproved(2000);
-		List<String> approveProperties = ReadByLine.readByLine(Constant.KNN_APPROVE_PROPERTY_FILE, "utf-8");
+		List<String> approveProperties = ReadByLine.readByLine(Constant.KNN_COOK_PROPERTY_FILE, "utf-8");
 		List<Message> approveResult = client.getAllMsgBySort(Constant.APPROVED, 0);  //经过页面审批为菜谱但未同步的数据
 		unPassedIds.addAll(judge(newMsgs, approvedMsgs, unPassed, approveProperties, approveResult));
 		dedup.syncApproved(approveResult,approvedMsgs);

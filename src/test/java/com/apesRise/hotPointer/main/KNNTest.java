@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import com.apesRise.hotPointer.core.knn.KnnModel;
 import com.apesRise.hotPointer.thrift.ThriftClient;
 import com.apesRise.hotPointer.thrift.push_gen.Message;
-import com.apesRise.hotPointer.util.Constant;
 import com.apesRise.hotPointer.util.ReadAll;
 import com.apesRise.hotPointer.util.ReadByLine;
 import com.apesRise.hotPointer.util.WFile;
@@ -20,7 +19,6 @@ import com.apesRise.hotPointer.util.WordCount;
 
 public class KNNTest {
 
-	private ThriftClient client = ThriftClient.getInstance();
 
 	List<Message> newMsgs = new LinkedList<Message>();
 	List<Message> passed = new LinkedList<Message>();
@@ -29,30 +27,30 @@ public class KNNTest {
 	
 	Map<String,Integer> propertyMap = new HashMap<String, Integer>();
 
+	final String passedPath = "train/approve";
+	final String newsPath = "train/cookbook";
+	final String unPassedPath = "train/unrelated_cook";
+	
 	private KNNTest() {
-		final String approvePath = "train/approve";
-		final String deltaApprovePath = "train/delta_approve";
-		final String unRelatedPath = "train/unrelated";
+		
 
-		File file = new File(approvePath);
+		File file = new File(newsPath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
-			msg.setId(Integer.parseInt(item.getName().substring(0,
-					item.getName().lastIndexOf(".txt"))));
+			msg.setId(Integer.parseInt(item.getName().substring(0,item.getName().lastIndexOf(".txt"))));
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			newMsgs.add(msg);
 		}
 
-		file = new File(deltaApprovePath);
+		file = new File(passedPath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
-			msg.setId(Integer.parseInt(item.getName().substring(0,
-					item.getName().lastIndexOf(".txt"))));
+			msg.setId(Integer.parseInt(item.getName().substring(0,item.getName().lastIndexOf(".txt"))));
 			msg.setContent(ReadAll.readAll(item.getAbsolutePath(), "utf-8"));
 			passed.add(msg);
 		}
 
-		file = new File(unRelatedPath);
+		file = new File(unPassedPath);
 		for (File item : file.listFiles()) {
 			Message msg = new Message();
 			msg.setId(Integer.parseInt(item.getName().substring(0,
@@ -66,15 +64,28 @@ public class KNNTest {
 		for(String word:properties){
 			propertyMap.put(word,1);
 		}
+		System.out.println("passed count:" + passed.size());
+		System.out.println("unPassed count:" + unPassed.size());
+		System.out.println("newMsg count:" + newMsgs.size());
 	}
 
 	public static void main(String[] args) {
 		KNNTest test = new KNNTest();
-		String text = "[话筒]转发=>【年底到了，小心人贩子】现在丢一个孩子会要了一个家庭的命，有网友提出修改刑法，以买卖为营利的拐卖妇女儿童一律死刑。而户籍方面，儿童入户口时一律采集指纹入电脑，保证被偷后无法入户并能及时找到。支持的请为了儿童转发！在发。。。[话筒]http://ww2.sinaimg.cn/bmiddle/9647a31egw1ecdib0tzx0j20go0bt74q.jpg";
-//		String text = "【简单又诱惑的樱桃大杏仁蛋糕】 1）鸡蛋、淡奶油、酸奶、白糖搅拌匀，筛入低粉拌匀 ；2）倒入铁锅，再加入去核樱桃、大杏仁、芝士碎，七分满就好；3）） 烤箱预热180度，烤25分钟左右即可。#美食#http://app.qpic.cn/mblogpic/fa74ea886a47cf3320de/460.jpg";
+		
+//		String text = "[话筒]转发=>【年底到了，小心人贩子】现在丢一个孩子会要了一个家庭的命，有网友提出修改刑法，以买卖为营利的拐卖妇女儿童一律死刑。而户籍方面，儿童入户口时一律采集指纹入电脑，保证被偷后无法入户并能及时找到。支持的请为了儿童转发！在发。。。[话筒]http://ww2.sinaimg.cn/bmiddle/9647a31egw1ecdib0tzx0j20go0bt74q.jpg";
+//		String text = "【简版寿司】1.准备热的米饭;2.加白醋,糖,盐,芝麻油拌匀;3.鸡蛋摊成蛋皮;4.将黄瓜,胡萝卜,蛋皮切条;5.海苔上铺满米饭,放黄瓜,胡萝卜,蛋皮;6.卷紧卷起;7.切段吃起来吧。#美食#http://app.qpic.cn/mblogpic/6cb58b67cf8f869167ac/460.jpg";
+//		String text = "【电饭锅版可乐鸡翅】1.鸡翅洗净,沸水汆下,再冷水洗净沥干;2.鸡翅和可.蒜粒.干辣椒.生姜片.酱油入盆中略抓几下使每块鸡翅都裹上颜色;3.鸡翅和调料入电饭煲中,盖盖,按下煮饭键;4.出气口有蒸气冒出时开盖,拌一下鸡翅;5.30min再开盖,用筷子插下鸡翅,能插进去即可。#美食#http://app.qpic.cn/mblogpic/a819dd3aacfe165ec6d0/460.jpg";
 //		String text = "【椒盐排骨】1.排骨切段，青红辣椒，洋葱切末。用葱姜，盐，糖，酱油，料酒把排骨腌制一小时;2.鸡蛋和淀粉搅成糊状。排骨裹上蛋糊放入五成热的油中炸酥，捞起滤干油;3.把辣椒，洋葱末加适量的椒盐略炒，放入排骨翻炒均匀。http://ww2.sinaimg.cn/bmiddle/88ffde5fjw1ecuyf0wt3bj20c909zgmh.jpg";
-		test.segmentHitTest(text);
-		test.singelTest(text);
+//		String text = "【韩国料理：拌菠菜】1.锅里加水，放粗盐烧开。2.水开后放菠菜，菠菜断生后立刻捞出来，用凉水过凉后，用手挤干水分。3.挤干水分的菠菜装到容器里放细盐，蒜末，香油，味精，酱油均匀的搅拌后装盘，撒上芝麻即可。@kuaizishuo ★分享自#筷子说#❤#美食#http://app.qpic.cn/mblogpic/b9544fd469bfce117fa2/460.jpg";
+//		String text = "高大上滴搅拌全家福到了〜还有漂亮滴锅垫和心形调味碟〜欢迎加入S老师美食烹饪大家族〜/鼓掌/鼓掌http://app.qpic.cn/mblogpic/97dbb88f66c65fe64f32/460.jpg";
+//		String text = "【干锅麻辣鸡翅尖】鸡翅尖一直都是我家宝贝最钟爱的一道美食。怎样做都是百吃不厌。这个干锅麻辣翅尖，口味鲜香，麻辣适中，是...做法：1、准备好所有的食材。2、胡萝卜和西兰花梗切片用开水焯烫过...详细：http://app.qpic.cn/mblogpic/c06e2e0ad858c56662b6/460.jpg";
+//		
+//		String text = "海南美食煎罗非鱼：罗非鱼原产于非洲，又叫“非洲鲫鱼”。是海南餐桌上最常见的淡水鱼菜品，两广一带也常吃到。海南最家常做法—煎罗非鱼，肉质肥美细嫩，味道好极了。http://app.qpic.cn/mblogpic/3e7df90d928fd3bde2ae/460.jpg";
+//		String text = "【川椒排骨#美食#】1、将猪肋排剁成17厘米长的段，将花椒小火炒香后磨碎待用。2、把葱、姜、味精、鸡精、生抽、美极鲜酱油、东古一品鲜酱油、料酒、花椒粉放一起调匀，然后下猪肋排腌1小时待用。3、炒锅下油，七成热时下排骨微火炸6分钟至熟，摆入垫有生菜的盘内即可。http://app.qpic.cn/mblogpic/e168b1a868358b1f7cf8/460.jpg";
+//		String text = "【京味家常肉饼】肉馅中加入盐、姜粉、白胡椒粉、生抽、料酒搅打上劲；揉一面团擀开；在面皮上铺满肉馅；肉馅上撒上葱花；用面片将肉馅包裹烙熟即可。更多美食:更多美食:http://app.qpic.cn/mblogpic/4db2316a109ab0471890/460.jpg";
+//		test.segmentHitTest(text);
+//		test.singelTest(text);
+		test.knnPropertyBatchTest();
 	}
 
 	private void singelTest(String text) {
@@ -99,17 +110,28 @@ public class KNNTest {
 	private void knnPropertyBatchTest() {
 		int count = 0;
 		KnnModel knnModel = new KnnModel(passed, unPassed, properties);
+		
 		for (Message msg : newMsgs) {
 			boolean result = knnModel.judge(msg.getContent());
-			System.out.println(result + " " + msg.getContent());
-			if (!result)
+			if (result){
+				
+				System.out.println(result + " " + msg.getId() + " " + msg.getContent());
+//				move(msg);
 				count++;
+			}
 			// WFile.wf(output + msg.getId() + ".txt", msg.getContent(), false);
 			// System.out.println(KnnModel.judge(msg.getContent()) + " " +
 			// msg.getContent());
 		}
-		System.out.println("false count:" + count);
+		System.out.println("total count:" + count);
 	}
+
+//	private void move(Message msg){
+//		String fileName = unPassedPath + "/" + msg.getId() + ".txt";
+//		WFile.wf(fileName, msg.getContent(), false);
+//		File file = new File(newsPath + "/" + msg.getId() + ".txt");
+//		file.delete();
+//	}
 
 	/*
 	 * private static void knnPropertyTest(){ List<Message> msgs = new
