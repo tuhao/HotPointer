@@ -35,7 +35,7 @@ public class ThriftClient {
 	private Client client = null;
 	private TTransport transport = null;
 	
-	private static int itemNum = 500;
+	public static int itemNum = 500;
 	private static boolean DEBUG = false;
 	
 	private ThriftClient(){
@@ -469,7 +469,7 @@ public class ThriftClient {
 	 * 取得推荐表数据总数
 	 * @return
 	 */
-	private int getApproveCount(){
+	public int getApproveCount(){
 		try {
 			transport.open();
 			return client.getApproveCount();
@@ -533,7 +533,7 @@ public class ThriftClient {
 	 * 取得UnRelated表数据总数
 	 * @return
 	 */
-	private int getUnRelatedCount(){
+	public int getUnRelatedCount(){
 		try {
 			transport.open();
 			return client.getUnRelatedCount();
@@ -557,7 +557,7 @@ public class ThriftClient {
 	 * @param itemNum
 	 * @return
 	 */
-	private List<Message> pullPaginateApprove(int startIndex,int itemNum){
+	public List<Message> pullPaginateApprove(int startIndex,int itemNum){
 		List<Message> result = new LinkedList<Message>();
 		try {
 			transport.open();
@@ -629,7 +629,7 @@ public class ThriftClient {
 	 * @param itemNum
 	 * @return
 	 */
-	private List<Message> pullPaginateUnRelated(int startIndex,int itemNum) {
+	public List<Message> pullPaginateUnRelated(int startIndex,int itemNum) {
 		// TODO Auto-generated method stub
 		List<Message> result = new LinkedList<Message>();
 		try {

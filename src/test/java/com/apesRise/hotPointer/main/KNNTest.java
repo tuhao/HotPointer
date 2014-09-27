@@ -27,7 +27,7 @@ public class KNNTest {
 	
 	Map<String,Integer> propertyMap = new HashMap<String, Integer>();
 
-	final String passedPath = "train/approve";
+	final String passedPath = "train/cookbook";
 	final String newsPath = "train/cookbook";
 	final String unPassedPath = "train/unrelated_cook";
 	
@@ -113,7 +113,7 @@ public class KNNTest {
 		
 		for (Message msg : newMsgs) {
 			boolean result = knnModel.judge(msg.getContent());
-			if (result){
+			if (!result){
 				
 				System.out.println(result + " " + msg.getId() + " " + msg.getContent());
 //				move(msg);
@@ -126,12 +126,12 @@ public class KNNTest {
 		System.out.println("total count:" + count);
 	}
 
-//	private void move(Message msg){
-//		String fileName = unPassedPath + "/" + msg.getId() + ".txt";
-//		WFile.wf(fileName, msg.getContent(), false);
-//		File file = new File(newsPath + "/" + msg.getId() + ".txt");
-//		file.delete();
-//	}
+	private void move(Message msg){
+		String fileName = passedPath + "/" + msg.getId() + ".txt";
+		WFile.wf(fileName, msg.getContent(), false);
+		File file = new File(newsPath + "/" + msg.getId() + ".txt");
+		file.delete();
+	}
 
 	/*
 	 * private static void knnPropertyTest(){ List<Message> msgs = new

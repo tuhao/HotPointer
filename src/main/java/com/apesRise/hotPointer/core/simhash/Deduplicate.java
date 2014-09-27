@@ -46,11 +46,40 @@ public class Deduplicate {
 	/**
 	 * 
 	 */
-	public void syncApproved(List<Message> approveResult,List<Message> approvedMsgs){
+	public void syncApproved(List<Message> passedNewMsgs){
 		List<Message> result = new LinkedList<Message>();
-		List<Integer> duplicates = dedup(approveResult,approvedMsgs,result);
+		List<Integer> duplicates = new LinkedList<Integer>();
+		int msgSum = client.getApproveCount();
+		for (int i =0;i < msgSum;i = i + ThriftClient.itemNum){
+			List<Message> passOldMsgs = client.pullPaginateApprove(i,ThriftClient.itemNum);
+			duplicates.addAll(dedup(passedNewMsgs, passOldMsgs, result));
+		}
 		int pushedCount = client.pushApprove(result);
-		deleteDuplicates(duplicates,result.size(),pushedCount);
+		deleteMetaDuplicates(duplicates);
+		deleteCookDuplicates(duplicates);
+		System.out.println(result.size() + " approve messages ,pushed " + pushedCount);
+	}
+	
+	private void deleteCookDuplicates(List<Integer> duplicates){
+		if(client.deleteMsgs(duplicates)){
+			System.out.println(duplicates.size() + " duplicates messages deleted from signature_message");
+		}else{
+			System.out.println("Approve messages delete trasaction fail..");
+		}
+	}
+	
+	
+	public void syncUnRelated(List<Message> unRelatedNewMsgs){
+		List<Message> result = new LinkedList<Message>();
+		List<Integer> duplicates = new LinkedList<Integer>();
+		int msgSum = client.getUnRelatedCount();
+		for (int i =0;i < msgSum;i = i + ThriftClient.itemNum){
+			List<Message> unRelatedOldMsgs = client.pullPaginateUnRelated(i,ThriftClient.itemNum);
+			duplicates.addAll(dedup(unRelatedNewMsgs, unRelatedOldMsgs, result));
+		}
+		int pushedCount = client.pushUnRelated(result);
+		deleteMetaDuplicates(duplicates);
+		System.out.println(result.size() + " unRelated messages ,pushed " + pushedCount);
 	}
 	
 
@@ -63,7 +92,8 @@ public class Deduplicate {
 		List<Message> result = new LinkedList<Message>();
 		List<Integer> duplicates = dedup(deliciousResult,deliciousMsgs,result);
 		int pushedCount = client.pushDelicious(result);
-		deleteDuplicates(duplicates,result.size(),pushedCount);
+		deleteMetaDuplicates(duplicates);
+		System.out.println(result.size() + " approve messages ,pushed " + pushedCount);
 	}
 	
 	/**
@@ -75,11 +105,11 @@ public class Deduplicate {
 		List<Message> result = new LinkedList<Message>();
 		List<Integer> duplicates = dedup(healthyResult,healthyMsgs,result);
 		int pushedCount = client.pushHealthy(result);
-		deleteDuplicates(duplicates,result.size(),pushedCount);
+		deleteMetaDuplicates(duplicates);
+		System.out.println(result.size() + " approve messages ,pushed " + pushedCount);
 	}
 	
-	private void deleteDuplicates(List<Integer> duplicates,int resultCount,int pushedCount){
-		System.out.println(resultCount + " approve messages ,pushed " + pushedCount);
+	private void deleteMetaDuplicates(List<Integer> duplicates){
 		if(client.deleteMeta(duplicates)){
 			System.out.println(duplicates.size() + " duplicates messages deleted from approve_metadata");
 		}else{
@@ -116,7 +146,6 @@ public class Deduplicate {
 			}
 		}
 		for(Message msg:result){
-			duplicates.add(msg.getId());
 			System.out.println("push new message:" + msg.getContent());
 		}
 		return duplicates;
